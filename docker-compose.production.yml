@@ -1,0 +1,51 @@
+version: '3.7'
+
+services:
+   balancer_api:
+    image: "registry.gitlab.com/stacrypt/redemtion/balancer:${IMAGE_TAG}"
+    container_name: balancer_api
+    depends_on:
+      balancer_db:
+        condition: service_healthy
+    networks:
+      stacloud_dmz:
+        ipv4_address: 192.168.25.32
+    healthcheck:
+      test: curl --silent --fail http://localhost/health || exit 1
+      interval: 30s
+      retries: 3
+      start_period: 20s
+      timeout: 10s      
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__PostgreSQL
+    env_file:
+      - .env
+    restart: always
+    mem_limit: 2g
+
+   balancer_db:
+    image: postgres
+    container_name: balancer_db
+    restart: always
+    command: postgres -c 'max_connections=2500'
+    environment:
+      POSTGRES_DB: Balancer
+      POSTGRES_USER: balancer
+      POSTGRES_PASSWORD: P@SSW0rd
+      PGDATA: /data/postgres
+    volumes:
+      - ./data/db:/data/postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      stacloud_dmz:
+        ipv4_address: 192.168.25.33
+
+networks:
+ stacloud_dmz:
+  name: stacloud_dmz
+  external: true

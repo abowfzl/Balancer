@@ -1,0 +1,52 @@
+version: '3.7'
+
+services:
+   balancer_api:
+    image:  balancer:latest
+    container_name: balancer_api
+    build:
+      context: ./src
+      dockerfile: Dockerfile  
+    depends_on:
+      balancer_db:
+        condition: service_healthy
+    ports:
+      - "8090:80"
+    networks:
+      - stacloud_dmz      
+    healthcheck:
+      test: curl --silent --fail http://localhost/health || exit 1
+      interval: 30s
+      retries: 3
+      start_period: 20s
+      timeout: 10s      
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__PostgreSQL
+    restart: always
+    mem_limit: 2g
+
+   balancer_db:
+    image: postgres
+    container_name: balancer_db
+    restart: always
+    command: postgres -c 'max_connections=2500'
+    environment:
+      POSTGRES_DB: Balancer
+      POSTGRES_USER: balancer
+      POSTGRES_PASSWORD: P@SSW0rd
+      PGDATA: /data/postgres
+    volumes:
+      - ./data/db:/data/postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - stacloud_dmz
+    
+networks:
+  stacloud_dmz:
+    name: stacloud_dmz
+    external: true

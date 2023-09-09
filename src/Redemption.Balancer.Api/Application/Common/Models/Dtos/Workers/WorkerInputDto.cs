@@ -1,9 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Redemption.Balancer.Api.Application.Common.Models.Dtos.Workers;
+﻿namespace Redemption.Balancer.Api.Application.Common.Models.Dtos.Workers;
 
 public class WorkerInputDto
 {
-    [Required]
+    public bool IsEnable { get; set; }
+
     public string? Name { get; set; }
+
+    public int Interval { get; set; }
 }

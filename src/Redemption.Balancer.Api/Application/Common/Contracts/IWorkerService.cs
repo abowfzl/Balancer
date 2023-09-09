@@ -10,4 +10,5 @@ public interface IWorkerService
     ValueTask<bool> IsWorkerRunning(CancellationToken cancellationToken);
     Task Update(WorkerEntity workerEntity, CancellationToken cancellationToken);
     Task<WorkerEntity> GetByName(string name, CancellationToken cancellationToken);
+    Task Insert(WorkerEntity workerEntity, CancellationToken cancellationToken);
 }

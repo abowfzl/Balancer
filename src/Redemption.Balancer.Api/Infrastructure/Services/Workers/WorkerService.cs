@@ -52,4 +52,11 @@ public class WorkerService : IWorkerService
 
         return workerEntity ?? throw new EntityNotFoundException($"No worker found with name:{name}");
     }
+
+    public async Task Insert(WorkerEntity workerEntity, CancellationToken cancellationToken)
+    {
+        _dbContext.Workers.Add(workerEntity);
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

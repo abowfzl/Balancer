@@ -4,7 +4,6 @@ using Redemption.Balancer.Api.Application.Common.Models.Dtos.Workers;
 using Redemption.Balancer.Api.Constants;
 using Redemption.Balancer.Api.Domain.Entities;
 using Redemption.Balancer.Api.Infrastructure.Persistence;
-using Redemption.Balancer.Api.Infrastructure.Services.AccountConfigs;
 
 namespace Redemption.Balancer.Api.Infrastructure.Services.Workers;
 

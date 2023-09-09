@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Redemption.Balancer.Api.Application.Common.Attributes;
 using Redemption.Balancer.Api.Application.Common.Contracts;
 using Redemption.Balancer.Api.Application.Common.Exceptions;
@@ -12,17 +13,31 @@ public class WorkerController : ApiControllerBase
 {
     private readonly IWorkerService _workerService;
     private readonly IBalancer _balancer;
+    private readonly IMapper _mapper;
 
     public WorkerController(IWorkerService workerService,
-        IBalancer balancer)
+        IBalancer balancer,
+        IMapper mapper)
     {
         _workerService = workerService;
         _balancer = balancer;
+        _mapper = mapper;
     }
 
     [Role(new[] { Role.Admin })]
     [HttpPost("[action]")]
-    public async ValueTask<bool> RunManually(WorkerInputDto inputDto, CancellationToken cancellationToken)
+    public async ValueTask<bool> Add(WorkerInputDto inputDto, CancellationToken cancellationToken)
+    {
+        var workerEntityToAdd = _mapper.Map<WorkerEntity>(inputDto);
+
+        await _workerService.Insert(workerEntityToAdd, cancellationToken);
+
+        return true;
+    }
+
+    [Role(new[] { Role.Admin })]
+    [HttpPost("[action]")]
+    public async ValueTask<bool> RunManually(RunWorkerInputDto inputDto, CancellationToken cancellationToken)
     {
         var worker = await _workerService.GetByName(inputDto.Name, cancellationToken);
 

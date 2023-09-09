@@ -27,6 +27,12 @@ public abstract class BaseBalancer : IBalancer
             {
                 await Task.Delay(TimeSpan.FromSeconds(worker.Interval), cancellationToken);
 
+                if (await _workerService.IsWorkerEnabled(worker, cancellationToken) is false)
+                {
+                    _logger.LogWarning("Worker:{workerName} is disabled, cannot be started", worker.Name);
+                    continue;
+                }
+
                 _logger.LogInformation("Hello from Worker:{workerName}", worker.Name);
 
                 worker = await _workerService.GetByName(worker.Name!, cancellationToken);
@@ -34,7 +40,7 @@ public abstract class BaseBalancer : IBalancer
                 // ToDo: better solution when exception happened or the time isn;t reach!
                 if (DateTime.UtcNow >= worker.CompletedAt + TimeSpan.FromSeconds(worker.Interval) || worker.CompletedAt is null)
                 {
-                    if (worker.IsRunning)
+                    if (await _workerService.IsWorkerRunning(worker, cancellationToken))
                     {
                         _logger.LogWarning("Worker:{workerName} is already Running, the loop cannot be started", worker.Name);
                         continue;

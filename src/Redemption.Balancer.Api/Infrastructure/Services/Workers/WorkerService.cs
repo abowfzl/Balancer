@@ -34,6 +34,11 @@ public class WorkerService : IWorkerService
         return await Task.FromResult(workerEntity.IsRunning);
     }
 
+    public async ValueTask<bool> IsWorkerEnabled(WorkerEntity workerEntity, CancellationToken cancellationToken)
+    {
+        return await Task.FromResult(workerEntity.IsEnable);
+    }
+
     public async Task Update(WorkerEntity workerEntity, CancellationToken cancellationToken)
     {
         _dbContext.Workers.Update(workerEntity);

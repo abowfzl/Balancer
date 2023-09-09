@@ -9,4 +9,5 @@ public class WorkerEntity
     public DateTime? StartedAt { get; set; }
     public DateTime? CompletedAt { get; set; }
     public DateTime? FailedAt { get; set; }
+    public bool IsEnable { get; set; }
 }

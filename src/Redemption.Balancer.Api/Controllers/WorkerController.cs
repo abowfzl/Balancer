@@ -26,18 +26,24 @@ public class WorkerController : ApiControllerBase
     {
         var worker = await _workerService.GetByName(inputDto.Name, cancellationToken);
 
-        await IsWorkerRunning(worker, cancellationToken);
+        await CheckWorkerStatus(worker, cancellationToken);
 
         await Task.Run(async () => await _balancer.RunManually(worker, cancellationToken), cancellationToken);
 
         return true;
     }
 
-    private async Task IsWorkerRunning(WorkerEntity worker, CancellationToken cancellationToken)
+    private async Task CheckWorkerStatus(WorkerEntity worker, CancellationToken cancellationToken)
     {
         var isWorkerRunning = await _workerService.IsWorkerRunning(worker, cancellationToken);
 
         if (isWorkerRunning)
             throw new ForbiddenException("The worker is running, you cannot run it manually right now, Please try again later.");
+
+        var isEnabled = await _workerService.IsWorkerEnabled(worker, cancellationToken);
+
+        if (isEnabled is false)
+            throw new ForbiddenException("The worker is disable, you cannot run it manually right now, Please try again later.");
+
     }
 }

@@ -9,7 +9,7 @@ using Redemption.Balancer.Api.Domain.Enums;
 
 namespace Redemption.Balancer.Api.Controllers;
 
-public class AccountConfigController : ApiControllerBase
+public class ConfigController : ApiControllerBase
 {
     private readonly IAccountConfigService _accountConfigService;
     private readonly IAccountService _accountService;
@@ -18,7 +18,7 @@ public class AccountConfigController : ApiControllerBase
 
     private readonly IMapper _mapper;
 
-    public AccountConfigController(IAccountConfigService accountConfigService, IWorkerService workerService,
+    public ConfigController(IAccountConfigService accountConfigService, IWorkerService workerService,
         ICurrencyService currencyService, IAccountService accountService, IMapper mapper)
     {
         _accountConfigService = accountConfigService;

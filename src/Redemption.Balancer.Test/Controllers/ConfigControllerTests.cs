@@ -9,9 +9,9 @@ using Xunit;
 
 namespace Redemption.Balancer.Test.Controllers;
 
-public class AccountConfigControllerTests
+public class ConfigControllerTests
 {
-    private readonly AccountConfigController _accountConfigController;
+    private readonly ConfigController _configController;
 
 
     private readonly Mock<IAccountConfigService> _accountConfigService;
@@ -20,7 +20,7 @@ public class AccountConfigControllerTests
     private readonly Mock<ICurrencyService> _currencyService;
     private readonly Mock<IMapper> _mapper;
 
-    public AccountConfigControllerTests()
+    public ConfigControllerTests()
     {
         _accountConfigService = new Mock<IAccountConfigService>();
         _workerService = new Mock<IWorkerService>();
@@ -28,7 +28,7 @@ public class AccountConfigControllerTests
         _accountService = new Mock<IAccountService>();
         _mapper = new Mock<IMapper>();
 
-        _accountConfigController = new AccountConfigController(_accountConfigService.Object, _workerService.Object, _currencyService.Object, _accountService.Object, _mapper.Object);
+        _configController = new ConfigController(_accountConfigService.Object, _workerService.Object, _currencyService.Object, _accountService.Object, _mapper.Object);
     }
 
     [Fact]
@@ -39,7 +39,7 @@ public class AccountConfigControllerTests
 
         _workerService.Setup(ws => ws.IsWorkerRunning(cancellationToken)).ReturnsAsync(true);
 
-        var action = async () => await _accountConfigController.AccountConfig(accountConfigId, cancellationToken);
+        var action = async () => await _configController.AccountConfig(accountConfigId, cancellationToken);
 
         await action.Should().ThrowExactlyAsync<ForbiddenException>();
     }
@@ -60,7 +60,7 @@ public class AccountConfigControllerTests
 
         _workerService.Setup(ws => ws.IsWorkerRunning(cancellationToken)).ReturnsAsync(true);
 
-        var action = async () => await _accountConfigController.AccountConfig(accountConfigId, input, cancellationToken);
+        var action = async () => await _configController.AccountConfig(accountConfigId, input, cancellationToken);
 
         await action.Should().ThrowExactlyAsync<ForbiddenException>();
     }
@@ -79,7 +79,7 @@ public class AccountConfigControllerTests
 
         _workerService.Setup(ws => ws.IsWorkerRunning(cancellationToken)).ReturnsAsync(true);
 
-        var action = async () => await _accountConfigController.AccountConfig(input, cancellationToken);
+        var action = async () => await _configController.AccountConfig(input, cancellationToken);
 
         await action.Should().ThrowExactlyAsync<ForbiddenException>();
     }

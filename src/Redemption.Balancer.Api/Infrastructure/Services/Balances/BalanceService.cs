@@ -1,4 +1,5 @@
 ﻿using Redemption.Balancer.Api.Application.Common.Contracts;
+using Redemption.Balancer.Api.Application.Common.Exceptions;
 using Redemption.Balancer.Api.Application.Common.Models.Balances;
 using Redemption.Balancer.Api.Application.Common.Models.Dtos.Balances;
 using Redemption.Balancer.Api.Domain.Entities;
@@ -16,6 +17,8 @@ public class BalanceService : IBalanceService
 
     public async Task<BalanceStatus> GetBalanceStatus(BalanceStatusInputDto request, int accountId, CancellationToken cancellationToken)
     {
+        ValidateRequest(request);
+
         var balanceStatus = new BalanceStatus();
 
         var transactions = await _transactionService.GetAccountTransactions(accountId, cancellationToken, request.StartDate, request.EndDate);
@@ -75,5 +78,11 @@ public class BalanceService : IBalanceService
         }
 
         return totalIRR;
+    }
+
+    private static void ValidateRequest(BalanceStatusInputDto request)
+    {
+        if (request.B2BIRRRate <= 0)
+            throw new BadRequestException("Property 'B2BIRRRate' should be greater than 0");
     }
 }

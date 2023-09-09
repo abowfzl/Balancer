@@ -48,8 +48,6 @@ public class BalanceController : ApiControllerBase
     [HttpGet("[action]")]
     public async Task<BalanceStatusOutputDto> Status([FromQuery] BalanceStatusInputDto inputDto, CancellationToken cancellationToken)
     {
-        ValidateInputs(inputDto);
-
         var balanceStatus = await _balanceService.GetBalanceStatus(inputDto, Account.MasterId, cancellationToken);
 
         var mappedBalanceStatus = _mapper.Map<BalanceStatusOutputDto>(balanceStatus);
@@ -83,12 +81,6 @@ public class BalanceController : ApiControllerBase
             transaction = _transactionService.GetDebitTransaction(fromAccountId, toAccountId, symbol, symbolPrice.Ticker, usdtPrice.Ticker, differenceAmount);
 
         return transaction;
-    }
-
-    private static void ValidateInputs(BalanceStatusInputDto inputDto)
-    {
-        if (inputDto.B2BIRRRate <= 0)
-            throw new BadRequestException("Property 'B2BRate' should be greater than 0");
     }
 
     private async Task ValidateInputs(BalanceInputDto inputDto, CancellationToken cancellationToken)

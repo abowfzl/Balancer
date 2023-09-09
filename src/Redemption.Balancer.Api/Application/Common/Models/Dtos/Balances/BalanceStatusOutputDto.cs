@@ -2,11 +2,11 @@
 
 public class BalanceStatusOutputDto
 {
-    public decimal Profit { get; set; }
+    public decimal IRRGained { get; set; }
 
-    public decimal Loss { get; set; }
+    public decimal USDTGained { get; set; }
 
-    public decimal Inject { get; set; }
+    public decimal IRRInject { get; set; }
 
-    public decimal Withdraw { get; set; }
+    public decimal USDTInject { get; set; }
 }

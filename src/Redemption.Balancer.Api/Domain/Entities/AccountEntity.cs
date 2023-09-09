@@ -4,7 +4,7 @@ public class AccountEntity : BaseEntity
 {
     public string? Name { get; set; }
 
-    public int UserId { get; set; }
+    public int StemeraldUserId { get; set; }
 
     public virtual ICollection<AccountConfigEntity> AccountConfigs { get; set; } = new List<AccountConfigEntity>();
 

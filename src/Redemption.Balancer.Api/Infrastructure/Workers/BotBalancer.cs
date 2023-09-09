@@ -46,7 +46,7 @@ public class BotBalancer : BaseBalancer
 
                 var accountConfigs = allAccountConfigs.Where(ac => ac.AccountId == account.Id).ToList();
 
-                var accountBalances = await _stexchangeService.GetBalanceQueries(trackingId, account.UserId, cancellationToken, accountConfigs.Select(s => s.Symbol).ToArray()!);
+                var accountBalances = await _stexchangeService.GetBalanceQueries(trackingId, account.StemeraldUserId, cancellationToken, accountConfigs.Select(s => s.Symbol).ToArray()!);
 
                 foreach (var accountConfig in accountConfigs)
                 {
@@ -61,7 +61,7 @@ public class BotBalancer : BaseBalancer
                             var transactions = await CreateAccountTransactions(accountConfig.AccountId, accountConfig.Symbol!, differenceBalance, cancellationToken);
 
                             //todo: parameters
-                            await _stexchangeService.UpdateBalance(trackingId, account.UserId, accountConfig.Symbol!, "balance", trackingId, -differenceBalance, transactions, cancellationToken);
+                            await _stexchangeService.UpdateBalance(trackingId, account.StemeraldUserId, accountConfig.Symbol!, "balance", trackingId, -differenceBalance, transactions, cancellationToken);
 
                             await _transactionService.Insert(transactions, cancellationToken);
 

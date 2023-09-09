@@ -87,13 +87,13 @@ public class BotBalancerTests
             {
                 Id =10,
                 Name = "xrpirr.velkharj.1@exbito.com",
-                UserId = 1000,
+                StemeraldUserId = 1000,
             },
             new AccountEntity()
             {
                 Id = 11,
                 Name = "bchirr.tinytimcheh.2@exbito.com",
-                UserId = 1001,
+                StemeraldUserId = 1001,
             }
         };
 
@@ -109,9 +109,9 @@ public class BotBalancerTests
 
         foreach (var account in accounts)
         {
-            _ = balances.TryGetValue(account.UserId, out var accountBalances);
+            _ = balances.TryGetValue(account.StemeraldUserId, out var accountBalances);
             var symbols = accountConfigs.Where(s => s.AccountId == account.Id).Select(s => s.Symbol!).ToArray();
-            _stexchangeService.Setup(ss => ss.GetBalanceQueries(trackingId, account.UserId, cancellationToken, symbols)).ReturnsAsync(accountBalances!);
+            _stexchangeService.Setup(ss => ss.GetBalanceQueries(trackingId, account.StemeraldUserId, cancellationToken, symbols)).ReturnsAsync(accountBalances!);
         }
 
         _priceService.Setup(p => p.GetPrice("USDT", cancellationToken)).ReturnsAsync(new PriceResponse() { Ticker = 0.000038876168m });
@@ -223,19 +223,19 @@ public class BotBalancerTests
             {
                 Id =Account.UserId,
                 Name = "User",
-                UserId = 1000,
+                StemeraldUserId = 0,
             },
             new AccountEntity()
             {
                 Id = Account.MasterId,
                 Name = "Master",
-                UserId = 1001,
+                StemeraldUserId = 0,
             },
             new AccountEntity()
             {
                 Id = Account.B2BId,
                 Name = "B2B",
-                UserId = 1002,
+                StemeraldUserId = 0,
             }
         };
 

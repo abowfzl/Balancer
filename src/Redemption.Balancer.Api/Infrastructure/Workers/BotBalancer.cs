@@ -39,6 +39,8 @@ public class BotBalancer : BaseBalancer
         {
             try
             {
+                await Task.Delay(500, cancellationToken);
+
                 if (new int[] { Account.UserId, Account.B2BId, Account.MasterId }.Contains(account.Id))
                     continue;
 
@@ -52,6 +54,8 @@ public class BotBalancer : BaseBalancer
                 {
                     try
                     {
+                        await Task.Delay(500, cancellationToken);
+
                         _ = accountBalances.TryGetValue(accountConfig.Symbol!, out var symbolBalance);
 
                         var differenceBalance = decimal.Parse(symbolBalance!.Available) - accountConfig.Value;

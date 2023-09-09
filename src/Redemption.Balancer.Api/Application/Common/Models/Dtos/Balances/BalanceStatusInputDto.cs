@@ -5,7 +5,7 @@ namespace Redemption.Balancer.Api.Application.Common.Models.Dtos.Balances;
 public class BalanceStatusInputDto
 {
     [Required]
-    public decimal B2BRate { get; set; }
+    public decimal B2BIRRRate { get; set; }
 
     public DateTime? StartDate { get; set; }
 

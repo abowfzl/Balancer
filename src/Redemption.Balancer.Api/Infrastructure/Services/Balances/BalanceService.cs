@@ -23,11 +23,11 @@ public class BalanceService : IBalanceService
         var irrBalanceValue = CalculateIRRBalance(accountId, transactions);
         var usdtBalanceValue = CalculateUSDTValueBalance(accountId, transactions);
 
-        balanceStatus.USDTGained = usdtBalanceValue + ConvertIRRtoUSDT(irrBalanceValue, request.B2BRate);
-        balanceStatus.IRRGained = ConvertUSDTtoIRR(usdtBalanceValue, request.B2BRate) + irrBalanceValue;
+        balanceStatus.USDTGained = usdtBalanceValue + ConvertIRRtoUSDT(irrBalanceValue, request.B2BIRRRate);
+        balanceStatus.IRRGained = ConvertUSDTtoIRR(usdtBalanceValue, request.B2BIRRRate) + irrBalanceValue;
 
         var balancedUSDTBalance = balanceStatus.USDTGained / 2;
-        var balancedIRRBalance = ConvertUSDTtoIRR(balancedUSDTBalance, request.B2BRate);
+        var balancedIRRBalance = ConvertUSDTtoIRR(balancedUSDTBalance, request.B2BIRRRate);
 
         balanceStatus.USDTInject = usdtBalanceValue - balancedUSDTBalance;
         balanceStatus.IRRInject = irrBalanceValue - balancedIRRBalance;
@@ -35,14 +35,14 @@ public class BalanceService : IBalanceService
         return balanceStatus;
     }
 
-    private static decimal ConvertIRRtoUSDT(decimal value, decimal rate)
+    private static decimal ConvertIRRtoUSDT(decimal irrValue, decimal irrRate)
     {
-        return value / rate;
+        return irrValue / irrRate;
     }
 
-    private static decimal ConvertUSDTtoIRR(decimal value, decimal rate)
+    private static decimal ConvertUSDTtoIRR(decimal usdtValue, decimal irrRate)
     {
-        return value * rate;
+        return usdtValue * irrRate;
     }
 
     private static decimal CalculateUSDTValueBalance(int accountId, IList<TransactionEntity> transactions)

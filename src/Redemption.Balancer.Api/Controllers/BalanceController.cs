@@ -87,7 +87,7 @@ public class BalanceController : ApiControllerBase
 
     private static void ValidateInputs(BalanceStatusInputDto inputDto)
     {
-        if (inputDto.B2BRate <= 0)
+        if (inputDto.B2BIRRRate <= 0)
             throw new BadRequestException("Property 'B2BRate' should be greater than 0");
     }
 

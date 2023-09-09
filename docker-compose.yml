@@ -5,7 +5,7 @@ services:
     image:  balancer:latest
     container_name: balancer_api
     build:
-      context: ./src
+      context: ./src/Redemption.Balancer.Api
       dockerfile: Dockerfile  
     depends_on:
       balancer_db:
@@ -22,7 +22,7 @@ services:
       timeout: 10s      
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__PostgreSQL
+      - ConnectionStrings__PostgreSQL=Host=balancer_db:5432;Database=Balancer;Username=balancer;Password=P@SSW0rd;SSL Mode=Disable;
     restart: always
     mem_limit: 2g
 

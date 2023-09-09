@@ -8,6 +8,8 @@ WORKDIR /src
 
 COPY . .
 
+RUN dotnet restore "Redemption.Balancer.Api.csproj" --configfile nuget.config
+
 RUN dotnet build "Redemption.Balancer.Api.csproj" -c Release -o /app
 
 FROM build AS publish

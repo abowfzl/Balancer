@@ -16,7 +16,7 @@ build:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - docker pull $CI_REGISTRY_IMAGE:latest || true
-    - docker build --cache-from $CI_REGISTRY_IMAGE:latest --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:latest ./src/Hessabgar.Balancer.Api
+    - docker build --cache-from $CI_REGISTRY_IMAGE:latest --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:latest ./src/Redemption.Balancer.Api
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - docker push $CI_REGISTRY_IMAGE:latest
   only:
@@ -31,7 +31,7 @@ build-stage:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - docker pull $CI_REGISTRY_IMAGE/stage:latest || true
-    - docker build --cache-from $CI_REGISTRY_IMAGE/stage:latest --tag $CI_REGISTRY_IMAGE/stage:latest ./src/Hessabgar.Balancer.Api
+    - docker build --cache-from $CI_REGISTRY_IMAGE/stage:latest --tag $CI_REGISTRY_IMAGE/stage:latest ./src/Redemption.Balancer.Api
     - docker push $CI_REGISTRY_IMAGE/stage:latest
   only:
     - /^V\d+\.\d+\.\d+-stage$/
@@ -66,8 +66,8 @@ deploy:
     SERVER_PORT: 3030
   stage: deploy
   script:
-    - scp -P $SERVER_PORT docker-compose.production.yml root@$SERVER_IP:~/hessabgar/balancer/docker-compose.yml
-    - ssh root@$SERVER_IP -p $SERVER_PORT "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY && cd hessabgar/balancer/ && docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA && IMAGE_TAG=$CI_COMMIT_SHA docker-compose up --force-recreate --build -d && docker logout $CI_REGISTRY"
+    - scp -P $SERVER_PORT docker-compose.production.yml root@$SERVER_IP:~/redemption/balancer/docker-compose.yml
+    - ssh root@$SERVER_IP -p $SERVER_PORT "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY && cd balancer/ && docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA && IMAGE_TAG=$CI_COMMIT_SHA docker-compose up --force-recreate --build -d && docker logout $CI_REGISTRY"
   only:
     - /^V\d+\.\d+\.\d+$/
   except:

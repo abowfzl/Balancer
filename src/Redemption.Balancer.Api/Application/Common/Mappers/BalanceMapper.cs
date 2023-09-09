@@ -2,13 +2,12 @@
 using Redemption.Balancer.Api.Application.Common.Models.Balances;
 using Redemption.Balancer.Api.Application.Common.Models.Dtos.Balances;
 
-namespace Redemption.Balancer.Api.Application.Common.Mappers
+namespace Redemption.Balancer.Api.Application.Common.Mappers;
+
+public class BalanceMapper : Profile
 {
-    public class BalanceMapper : Profile
+    public BalanceMapper()
     {
-        public BalanceMapper()
-        {
-            CreateMap<BalanceStatus, BalanceStatusOutputDto>();
-        }
+        CreateMap<BalanceStatus, BalanceStatusOutputDto>();
     }
 }

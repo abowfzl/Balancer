@@ -15,6 +15,13 @@ public class AccountService : IAccountService
         _dbContext = dbContext;
     }
 
+    public async Task Insert(AccountEntity accountEntity, CancellationToken cancellationToken)
+    {
+        _dbContext.Accounts.Add(accountEntity);
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task<AccountEntity> GetById(int id, CancellationToken cancellationToken)
     {
         var accountEntity = await _dbContext.Accounts.FindAsync(id, cancellationToken);

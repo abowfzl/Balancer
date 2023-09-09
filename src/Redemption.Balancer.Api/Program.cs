@@ -69,18 +69,18 @@ using (var scope = app.Services.CreateScope())
     await dataContext.Database.MigrateAsync();
 }
 
-if (app.Environment.IsProduction() is false)
+//if (app.Environment.IsProduction() is false)
+//{
+app.UseSwagger();
+app.UseSwaggerUI(options =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        foreach (var description in app.Services.GetRequiredService<IApiVersionDescriptionProvider>()
-                     .ApiVersionDescriptions)
-            options.SwaggerEndpoint(
-                $"/swagger/{description.GroupName}/swagger.json",
-                description.GroupName.ToUpperInvariant());
-    });
-}
+    foreach (var description in app.Services.GetRequiredService<IApiVersionDescriptionProvider>()
+                 .ApiVersionDescriptions)
+        options.SwaggerEndpoint(
+            $"/swagger/{description.GroupName}/swagger.json",
+            description.GroupName.ToUpperInvariant());
+});
+//}
 
 app.UseRequestTracing();
 app.MapHealthChecks("/health");

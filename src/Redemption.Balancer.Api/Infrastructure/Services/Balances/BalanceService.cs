@@ -32,8 +32,8 @@ public class BalanceService : IBalanceService
         var balancedUSDTBalance = balanceStatus.USDTGained / 2;
         var balancedIRRBalance = ConvertUSDTtoIRR(balancedUSDTBalance, request.B2BIRRRate);
 
-        balanceStatus.USDTInject = usdtBalanceValue - balancedUSDTBalance;
-        balanceStatus.IRRInject = irrBalanceValue - balancedIRRBalance;
+        balanceStatus.USDTInject = balancedUSDTBalance - usdtBalanceValue;
+        balanceStatus.IRRInject = balancedIRRBalance - irrBalanceValue;
 
         return balanceStatus;
     }

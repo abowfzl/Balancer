@@ -2,6 +2,7 @@ using Redemption.Balancer.Api.Application.Common.Contracts;
 using Redemption.Balancer.Api.Constants;
 using Redemption.Balancer.Api.Domain.Entities;
 using Redemption.Balancer.Api.Infrastructure.Common.Extensions;
+using Redemption.Balancer.Api.Infrastructure.Persistence;
 
 namespace Redemption.Balancer.Api.Infrastructure.Workers;
 
@@ -14,6 +15,7 @@ public class BotBalancer : BaseBalancer
     private readonly IAccountConfigService _accountConfigService;
     private readonly ITransactionService _transactionService;
     private readonly ICurrencyService _currencyService;
+    private readonly BalancerDbContext _dbContext;
 
     public BotBalancer(ILogger<BotBalancer> logger,
         IPriceService priceService,
@@ -22,7 +24,8 @@ public class BotBalancer : BaseBalancer
         IAccountService accountService,
         IAccountConfigService accountConfigService,
         ITransactionService transactionService,
-        ICurrencyService currencyService) : base(workerService, logger)
+        ICurrencyService currencyService,
+        BalancerDbContext dbContext) : base(workerService, logger)
     {
         _logger = logger;
         _priceService = priceService;
@@ -31,6 +34,7 @@ public class BotBalancer : BaseBalancer
         _accountConfigService = accountConfigService;
         _transactionService = transactionService;
         _currencyService = currencyService;
+        _dbContext = dbContext;
     }
 
     public override async Task BalanceAsync(int trackingId, CancellationToken cancellationToken)
@@ -56,6 +60,7 @@ public class BotBalancer : BaseBalancer
 
                 foreach (var accountConfig in accountConfigs)
                 {
+                    using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
                     try
                     {
                         await Task.Delay(500, cancellationToken);
@@ -80,10 +85,14 @@ public class BotBalancer : BaseBalancer
                         }
                         else
                             _logger.LogInformation("Account:{accountName} balance for symbol:{accountConfigSymbol} isn't changed", account.Name, accountConfig.Symbol);
+
+                        await transaction.CommitAsync(cancellationToken);
                     }
                     catch (Exception ex)
                     {
                         _logger.LogError(ex, "Account:{accountName} balance for symbol:{accountConfigSymbol} failed. CatchBlock:", account.Name, accountConfig.Symbol);
+
+                        await transaction.RollbackAsync(cancellationToken);
                     }
                 }
 

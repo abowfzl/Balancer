@@ -1,10 +1,14 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Redemption.Balancer.Api.Application.Common.Contracts;
 using Redemption.Balancer.Api.Application.Common.Models.Externals.Basics;
 using Redemption.Balancer.Api.Application.Common.Models.Externals.Kenes;
 using Redemption.Balancer.Api.Constants;
 using Redemption.Balancer.Api.Domain.Entities;
+using Redemption.Balancer.Api.Infrastructure.Persistence;
 using Redemption.Balancer.Api.Infrastructure.Workers;
 using StexchangeClient.Models.Response.Assets;
 using Xunit;
@@ -35,6 +39,14 @@ public class BotBalancerTests
         _accountService = new Mock<IAccountService>();
         _currencyService = new Mock<ICurrencyService>();
 
+        var dbOption = new DbContextOptionsBuilder<BalancerDbContext>().Options;
+        var mockContext = new Mock<BalancerDbContext>(dbOption);
+        var databaseMock = new Mock<DatabaseFacade>(mockContext.Object);
+        var transactionMock = new Mock<IDbContextTransaction>();
+
+        databaseMock.Setup(s => s.BeginTransactionAsync(It.IsAny<CancellationToken>())).ReturnsAsync(transactionMock.Object);
+        mockContext.Setup(s => s.Database).Returns(databaseMock.Object);
+
         _botBalancer = new BotBalancer(mockLogger.Object,
             _priceService.Object,
             _stexchangeService.Object,
@@ -42,7 +54,8 @@ public class BotBalancerTests
             _accountService.Object,
             _accountConfigService.Object,
             _transactionService.Object,
-            _currencyService.Object);
+            _currencyService.Object,
+            mockContext.Object);
     }
 
     [Fact]

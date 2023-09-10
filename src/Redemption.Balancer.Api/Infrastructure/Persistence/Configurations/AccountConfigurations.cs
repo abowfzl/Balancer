@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Redemption.Balancer.Api.Constants;
 using Redemption.Balancer.Api.Domain.Entities;
 
 namespace Redemption.Balancer.Api.Infrastructure.Persistence.Configurations;
@@ -25,5 +26,31 @@ public static class AccountConfigurations
                 .WithOne(p => p.ToAccount)
                 .HasForeignKey(d => d.ToAccountId);
         });
+
+        modelBuilder.Entity<AccountEntity>().HasData(
+            new AccountEntity()
+            {
+                Id = Account.MasterId,
+                Name = "Master",
+                StemeraldUserId = 0,
+                CreatedBy = 0,
+                CreatedAt = DateTime.UtcNow,
+            },
+            new AccountEntity()
+            {
+                Id = Account.UserId,
+                Name = "User",
+                StemeraldUserId = 0,
+                CreatedBy = 0,
+                CreatedAt = DateTime.UtcNow,
+            },
+            new AccountEntity()
+            {
+                Id = Account.B2BId,
+                Name = "B2B",
+                StemeraldUserId = 0,
+                CreatedBy = 0,
+                CreatedAt = DateTime.UtcNow,
+            });
     }
 }

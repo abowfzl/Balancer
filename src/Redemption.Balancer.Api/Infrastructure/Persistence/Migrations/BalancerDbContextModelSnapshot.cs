@@ -8,207 +8,234 @@ using Redemption.Balancer.Api.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace Redemption.Balancer.Api.Infrastructure.Persistence.Migrations;
-
-[DbContext(typeof(BalancerDbContext))]
-partial class BalancerDbContextModelSnapshot : ModelSnapshot
+namespace Redemption.Balancer.Api.Infrastructure.Persistence.Migrations
 {
-    protected override void BuildModel(ModelBuilder modelBuilder)
+    [DbContext(typeof(BalancerDbContext))]
+    partial class BalancerDbContextModelSnapshot : ModelSnapshot
     {
+        protected override void BuildModel(ModelBuilder modelBuilder)
+        {
 #pragma warning disable 612, 618
-        modelBuilder
-            .HasAnnotation("ProductVersion", "7.0.10")
-            .HasAnnotation("Relational:MaxIdentifierLength", 63);
+            modelBuilder
+                .HasAnnotation("ProductVersion", "7.0.10")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-        NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-        modelBuilder.Entity("Redemption.Balancer.Api.Domain.Entities.AccountConfigEntity", b =>
-            {
-                b.Property<int>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("integer");
+            modelBuilder.Entity("Redemption.Balancer.Api.Domain.Entities.AccountConfigEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
 
-                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                b.Property<int>("AccountId")
-                    .HasColumnType("integer");
+                    b.Property<int>("AccountId")
+                        .HasColumnType("integer");
 
-                b.Property<DateTime>("CreatedAt")
-                    .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
-                b.Property<int>("CreatedBy")
-                    .HasColumnType("integer");
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer");
 
-                b.Property<DateTime?>("ModifiedAt")
-                    .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
 
-                b.Property<int?>("ModifiedBy")
-                    .HasColumnType("integer");
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("integer");
 
-                b.Property<string>("Symbol")
-                    .HasMaxLength(16)
-                    .HasColumnType("character varying(16)");
+                    b.Property<string>("Symbol")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
 
-                b.Property<decimal>("Value")
-                    .HasColumnType("numeric");
+                    b.Property<decimal>("Value")
+                        .HasColumnType("numeric");
 
-                b.HasKey("Id");
+                    b.HasKey("Id");
 
-                b.HasIndex("AccountId");
+                    b.HasIndex("AccountId");
 
-                b.ToTable("AccountConfigs", (string)null);
-            });
+                    b.ToTable("AccountConfigs", (string)null);
+                });
 
-        modelBuilder.Entity("Redemption.Balancer.Api.Domain.Entities.AccountEntity", b =>
-            {
-                b.Property<int>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("integer");
+            modelBuilder.Entity("Redemption.Balancer.Api.Domain.Entities.AccountEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
 
-                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                b.Property<DateTime>("CreatedAt")
-                    .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
-                b.Property<int>("CreatedBy")
-                    .HasColumnType("integer");
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer");
 
-                b.Property<DateTime?>("ModifiedAt")
-                    .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
 
-                b.Property<int?>("ModifiedBy")
-                    .HasColumnType("integer");
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("integer");
 
-                b.Property<string>("Name")
-                    .HasMaxLength(128)
-                    .HasColumnType("character varying(128)");
+                    b.Property<string>("Name")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
-                b.Property<int>("StemeraldUserId")
-                    .HasColumnType("integer");
+                    b.Property<int>("StemeraldUserId")
+                        .HasColumnType("integer");
 
-                b.HasKey("Id");
+                    b.HasKey("Id");
 
-                b.ToTable("Accounts", (string)null);
-            });
+                    b.ToTable("Accounts", (string)null);
 
-        modelBuilder.Entity("Redemption.Balancer.Api.Domain.Entities.TransactionEntity", b =>
-            {
-                b.Property<int>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("integer");
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2023, 9, 10, 0, 00, 00, 000, DateTimeKind.Utc),
+                            CreatedBy = 0,
+                            Name = "Master",
+                            StemeraldUserId = 0
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2023, 9, 10, 0, 00, 00, 000, DateTimeKind.Utc),
+                            CreatedBy = 0,
+                            Name = "User",
+                            StemeraldUserId = 0
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(2023, 9, 10, 9, 46, 13, 352, DateTimeKind.Utc).AddTicks(3610),
+                            CreatedBy = 0,
+                            Name = "B2B",
+                            StemeraldUserId = 0
+                        });
+                });
 
-                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+            modelBuilder.Entity("Redemption.Balancer.Api.Domain.Entities.TransactionEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
 
-                b.Property<decimal>("Amount")
-                    .HasColumnType("numeric");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                b.Property<DateTime>("CreatedAt")
-                    .HasColumnType("timestamp with time zone");
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
 
-                b.Property<int>("CreatedBy")
-                    .HasColumnType("integer");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
-                b.Property<int>("FromAccountId")
-                    .HasColumnType("integer");
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer");
 
-                b.Property<DateTime?>("ModifiedAt")
-                    .HasColumnType("timestamp with time zone");
+                    b.Property<int>("FromAccountId")
+                        .HasColumnType("integer");
 
-                b.Property<int?>("ModifiedBy")
-                    .HasColumnType("integer");
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
 
-                b.Property<string>("Symbol")
-                    .HasMaxLength(16)
-                    .HasColumnType("character varying(16)");
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("integer");
 
-                b.Property<int>("ToAccountId")
-                    .HasColumnType("integer");
+                    b.Property<string>("Symbol")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
 
-                b.Property<decimal>("TotalValue")
-                    .HasColumnType("numeric");
+                    b.Property<int>("ToAccountId")
+                        .HasColumnType("integer");
 
-                b.HasKey("Id");
+                    b.Property<decimal>("TotalValue")
+                        .HasColumnType("numeric");
 
-                b.HasIndex("FromAccountId");
+                    b.HasKey("Id");
 
-                b.HasIndex("ToAccountId");
+                    b.HasIndex("FromAccountId");
 
-                b.ToTable("Transactions", (string)null);
-            });
+                    b.HasIndex("ToAccountId");
 
-        modelBuilder.Entity("Redemption.Balancer.Api.Domain.Entities.WorkerEntity", b =>
-            {
-                b.Property<int>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("integer");
+                    b.ToTable("Transactions", (string)null);
+                });
 
-                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+            modelBuilder.Entity("Redemption.Balancer.Api.Domain.Entities.WorkerEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
 
-                b.Property<DateTime?>("CompletedAt")
-                    .HasColumnType("timestamp with time zone");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                b.Property<DateTime?>("FailedAt")
-                    .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
 
-                b.Property<int>("Interval")
-                    .HasColumnType("integer");
+                    b.Property<DateTime?>("FailedAt")
+                        .HasColumnType("timestamp with time zone");
 
-                b.Property<bool>("IsEnable")
-                    .HasColumnType("boolean");
+                    b.Property<int>("Interval")
+                        .HasColumnType("integer");
 
-                b.Property<bool>("IsRunning")
-                    .HasColumnType("boolean");
+                    b.Property<bool>("IsEnable")
+                        .HasColumnType("boolean");
 
-                b.Property<string>("Name")
-                    .HasMaxLength(16)
-                    .HasColumnType("character varying(16)");
+                    b.Property<bool>("IsRunning")
+                        .HasColumnType("boolean");
 
-                b.Property<DateTime?>("StartedAt")
-                    .HasColumnType("timestamp with time zone");
+                    b.Property<string>("Name")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
 
-                b.HasKey("Id");
+                    b.Property<DateTime?>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
 
-                b.ToTable("Workers", (string)null);
-            });
+                    b.HasKey("Id");
 
-        modelBuilder.Entity("Redemption.Balancer.Api.Domain.Entities.AccountConfigEntity", b =>
-            {
-                b.HasOne("Redemption.Balancer.Api.Domain.Entities.AccountEntity", "Account")
-                    .WithMany("AccountConfigs")
-                    .HasForeignKey("AccountId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired();
+                    b.ToTable("Workers", (string)null);
+                });
 
-                b.Navigation("Account");
-            });
+            modelBuilder.Entity("Redemption.Balancer.Api.Domain.Entities.AccountConfigEntity", b =>
+                {
+                    b.HasOne("Redemption.Balancer.Api.Domain.Entities.AccountEntity", "Account")
+                        .WithMany("AccountConfigs")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-        modelBuilder.Entity("Redemption.Balancer.Api.Domain.Entities.TransactionEntity", b =>
-            {
-                b.HasOne("Redemption.Balancer.Api.Domain.Entities.AccountEntity", "FromAccount")
-                    .WithMany("FromTransactions")
-                    .HasForeignKey("FromAccountId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired();
+                    b.Navigation("Account");
+                });
 
-                b.HasOne("Redemption.Balancer.Api.Domain.Entities.AccountEntity", "ToAccount")
-                    .WithMany("ToTransactions")
-                    .HasForeignKey("ToAccountId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired();
+            modelBuilder.Entity("Redemption.Balancer.Api.Domain.Entities.TransactionEntity", b =>
+                {
+                    b.HasOne("Redemption.Balancer.Api.Domain.Entities.AccountEntity", "FromAccount")
+                        .WithMany("FromTransactions")
+                        .HasForeignKey("FromAccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                b.Navigation("FromAccount");
+                    b.HasOne("Redemption.Balancer.Api.Domain.Entities.AccountEntity", "ToAccount")
+                        .WithMany("ToTransactions")
+                        .HasForeignKey("ToAccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                b.Navigation("ToAccount");
-            });
+                    b.Navigation("FromAccount");
 
-        modelBuilder.Entity("Redemption.Balancer.Api.Domain.Entities.AccountEntity", b =>
-            {
-                b.Navigation("AccountConfigs");
+                    b.Navigation("ToAccount");
+                });
 
-                b.Navigation("FromTransactions");
+            modelBuilder.Entity("Redemption.Balancer.Api.Domain.Entities.AccountEntity", b =>
+                {
+                    b.Navigation("AccountConfigs");
 
-                b.Navigation("ToTransactions");
-            });
+                    b.Navigation("FromTransactions");
+
+                    b.Navigation("ToTransactions");
+                });
 #pragma warning restore 612, 618
+        }
     }
 }

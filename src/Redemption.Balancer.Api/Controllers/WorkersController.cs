@@ -9,13 +9,13 @@ using Redemption.Balancer.Api.Domain.Enums;
 
 namespace Redemption.Balancer.Api.Controllers;
 
-public class WorkerController : ApiControllerBase
+public class WorkersController : ApiControllerBase
 {
     private readonly IWorkerService _workerService;
     private readonly IBalancer _balancer;
     private readonly IMapper _mapper;
 
-    public WorkerController(IWorkerService workerService,
+    public WorkersController(IWorkerService workerService,
         IBalancer balancer,
         IMapper mapper)
     {
@@ -25,7 +25,18 @@ public class WorkerController : ApiControllerBase
     }
 
     [Role(new[] { Role.Admin })]
-    [HttpPost("[action]")]
+    [HttpGet]
+    public async Task<List<WorkerOutputDto>> Workers(CancellationToken cancellationToken)
+    {
+        var workerEntities = await _workerService.GetAll(cancellationToken);
+
+        var mappedWorkerEntities = _mapper.Map<List<WorkerOutputDto>>(workerEntities);
+
+        return mappedWorkerEntities;
+    }
+
+    [Role(new[] { Role.Admin })]
+    [HttpPost]
     public async ValueTask<bool> Add(WorkerInputDto inputDto, CancellationToken cancellationToken)
     {
         var workerEntityToAdd = _mapper.Map<WorkerEntity>(inputDto);
@@ -36,10 +47,38 @@ public class WorkerController : ApiControllerBase
     }
 
     [Role(new[] { Role.Admin })]
-    [HttpPost("[action]")]
-    public async ValueTask<bool> RunManually(RunWorkerInputDto inputDto, CancellationToken cancellationToken)
+    [HttpPut("{workerName}")]
+    public async ValueTask<bool> Update(string workerName, WorkerInputDto inputDto, CancellationToken cancellationToken)
     {
-        var worker = await _workerService.GetByName(inputDto.Name, cancellationToken);
+        var worker = await _workerService.GetByName(workerName, cancellationToken);
+
+        var workerEntityToUpdate = _mapper.Map<WorkerEntity>(inputDto);
+
+        worker.Interval = workerEntityToUpdate.Interval;
+        worker.IsEnable = workerEntityToUpdate.IsEnable;
+        worker.Name = workerEntityToUpdate.Name;
+
+        await _workerService.Update(worker, cancellationToken);
+
+        return true;
+    }
+
+    [Role(new[] { Role.Admin })]
+    [HttpDelete("{workerName}")]
+    public async ValueTask<bool> Delete(string workerName, CancellationToken cancellationToken)
+    {
+        var worker = await _workerService.GetByName(workerName, cancellationToken);
+
+        await _workerService.Delete(worker, cancellationToken);
+
+        return true;
+    }
+
+    [Role(new[] { Role.Admin })]
+    [HttpPost("[action]/{workerName}")]
+    public async ValueTask<bool> RunManually(string workerName, CancellationToken cancellationToken)
+    {
+        var worker = await _workerService.GetByName(workerName, cancellationToken);
 
         await CheckWorkerStatus(worker, cancellationToken);
 

@@ -9,5 +9,6 @@ public class WorkerMapper : Profile
     public WorkerMapper()
     {
         CreateMap<WorkerInputDto, WorkerEntity>();
+        CreateMap<WorkerEntity, WorkerOutputDto>();
     }
 }

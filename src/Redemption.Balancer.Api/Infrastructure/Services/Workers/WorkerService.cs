@@ -59,4 +59,18 @@ public class WorkerService : IWorkerService
 
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task Delete(WorkerEntity workerEntity, CancellationToken cancellationToken)
+    {
+        _dbContext.Workers.Remove(workerEntity);
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<IList<WorkerEntity>> GetAll(CancellationToken cancellationToken)
+    {
+        var workerEntities = await _dbContext.Workers.ToListAsync(cancellationToken);
+
+        return workerEntities;
+    }
 }

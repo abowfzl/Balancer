@@ -9,5 +9,6 @@ public class AccountMapper : Profile
     public AccountMapper()
     {
         CreateMap<AccountDtoInput, AccountEntity>();
+        CreateMap<AccountEntity, AccountOutputDto>();
     }
 }

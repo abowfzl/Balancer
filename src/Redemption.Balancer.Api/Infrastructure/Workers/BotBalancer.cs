@@ -75,9 +75,6 @@ public class BotBalancer : BaseBalancer
                             var parameterTransaction = transactions.First(t => t.FromAccountId == Account.MasterId || t.ToAccountId == Account.MasterId);
 
                             await _stexchangeService.UpdateBalance(trackingId, account.StemeraldUserId, accountConfig.Symbol!, "autoBalance", parameterTransaction.Id, PriceExtensions.Denormalize(-differenceBalance, currency.NormalizationScale), parameterTransaction, cancellationToken);
-
-
-                            _logger.LogInformation("Account:{accountName} transactions for symbol:{accountConfigSymbol} inserted", account.Name, accountConfig.Symbol);
                         }
                         else
                             _logger.LogInformation("Account:{accountName} balance for symbol:{accountConfigSymbol} isn't changed", account.Name, accountConfig.Symbol);

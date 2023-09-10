@@ -82,7 +82,19 @@ public class BotBalancer : BaseBalancer
 
                             var parameterTransaction = transactions.First(t => t.FromAccountId == Account.MasterId || t.ToAccountId == Account.MasterId);
 
-                            var businessDetail = new BusinessDetailModel<TransactionEntity>() { Name = "balancer", Detail = parameterTransaction };
+                            var businessDetail = new BusinessDetailModel<TransactionBusinessModel>() 
+                            { 
+                                Name = "balancer",
+                                Detail = new TransactionBusinessModel()
+                                {
+                                    Id = parameterTransaction.Id,
+                                    FromAccountId = parameterTransaction.FromAccountId,
+                                    ToAccountId = parameterTransaction.ToAccountId,
+                                    Amount = parameterTransaction.Amount,
+                                    Symbol = parameterTransaction.Symbol,
+                                    TotalValue = parameterTransaction.TotalValue
+                                }
+                            };
 
                             await _stexchangeService.UpdateBalance(trackingId, account.StemeraldUserId, accountConfig.Symbol!, "balancer", parameterTransaction.Id, PriceExtensions.Denormalize(-differenceBalance, currency.NormalizationScale), businessDetail, cancellationToken);
                         }
@@ -110,20 +122,20 @@ public class BotBalancer : BaseBalancer
 
     private async Task<IList<TransactionEntity>> CreateAccountTransactions(int accountId, string symbol, decimal differenceAmount, CancellationToken cancellationToken)
     {
-        var symbolPrice = await _priceService.GetPrice(symbol, cancellationToken);
-        var usdtPrice = await _priceService.GetPrice("USDT", cancellationToken);
+        var symbolPrice = await _priceService.GetStemeraldPrice(symbol, cancellationToken);
+        var usdtPrice = await _priceService.GetStemeraldPrice("USDT", cancellationToken);
 
         var transactions = new List<TransactionEntity>();
 
         if (differenceAmount > 0)
         {
-            transactions.Add(_transactionService.GetDebitTransaction(accountId, Account.MasterId, symbol, symbolPrice.Ticker, usdtPrice.Ticker, -differenceAmount));
-            transactions.Add(_transactionService.GetCreditTransaction(Account.UserId, accountId, symbol, symbolPrice.Ticker, usdtPrice.Ticker, differenceAmount));
+            transactions.Add(_transactionService.GetDebitTransaction(accountId, Account.MasterId, symbol, symbolPrice.DecimalTicker, usdtPrice.DecimalTicker, -differenceAmount));
+            transactions.Add(_transactionService.GetCreditTransaction(Account.UserId, accountId, symbol, symbolPrice.DecimalTicker, usdtPrice.DecimalTicker, differenceAmount));
         }
         else
         {
-            transactions.Add(_transactionService.GetDebitTransaction(accountId, Account.UserId, symbol, symbolPrice.Ticker, usdtPrice.Ticker, differenceAmount));
-            transactions.Add(_transactionService.GetCreditTransaction(Account.MasterId, accountId, symbol, symbolPrice.Ticker, usdtPrice.Ticker, -differenceAmount));
+            transactions.Add(_transactionService.GetDebitTransaction(accountId, Account.UserId, symbol, symbolPrice.DecimalTicker, usdtPrice.DecimalTicker, differenceAmount));
+            transactions.Add(_transactionService.GetCreditTransaction(Account.MasterId, accountId, symbol, symbolPrice.DecimalTicker, usdtPrice.DecimalTicker, -differenceAmount));
         }
 
         return transactions;

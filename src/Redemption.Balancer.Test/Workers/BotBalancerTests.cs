@@ -6,7 +6,7 @@ using Moq;
 using Redemption.Balancer.Api.Application.Common.Contracts;
 using Redemption.Balancer.Api.Application.Common.Models;
 using Redemption.Balancer.Api.Application.Common.Models.Externals.Basics;
-using Redemption.Balancer.Api.Application.Common.Models.Externals.Kenes;
+using Redemption.Balancer.Api.Application.Common.Models.Externals.Stemeralds;
 using Redemption.Balancer.Api.Constants;
 using Redemption.Balancer.Api.Domain.Entities;
 using Redemption.Balancer.Api.Infrastructure.Persistence;
@@ -132,10 +132,10 @@ public class BotBalancerTests
             _stexchangeService.Setup(ss => ss.GetBalanceQueries(trackingId, account.StemeraldUserId, cancellationToken, symbols)).ReturnsAsync(accountBalances!);
         }
 
-        _priceService.Setup(p => p.GetPrice("USDT", cancellationToken)).ReturnsAsync(new PriceResponse() { Ticker = 0.000038876168m });
-        _priceService.Setup(p => p.GetPrice("IRR", cancellationToken)).ReturnsAsync(new PriceResponse() { Ticker = 0.000000000772691m });
-        _priceService.Setup(p => p.GetPrice("BCH", cancellationToken)).ReturnsAsync(new PriceResponse() { Ticker = 0.007503100m });
-        _priceService.Setup(p => p.GetPrice("XRP", cancellationToken)).ReturnsAsync(new PriceResponse() { Ticker = 0.000019550817m });
+        _priceService.Setup(p => p.GetStemeraldPrice("USDT", cancellationToken)).ReturnsAsync(new StemeraldPriceResponse() { Ticker = "0.000038876168" });
+        _priceService.Setup(p => p.GetStemeraldPrice("IRR", cancellationToken)).ReturnsAsync(new StemeraldPriceResponse() { Ticker = "0.000000000772691" });
+        _priceService.Setup(p => p.GetStemeraldPrice("BCH", cancellationToken)).ReturnsAsync(new StemeraldPriceResponse() { Ticker = "0.007503100" });
+        _priceService.Setup(p => p.GetStemeraldPrice("XRP", cancellationToken)).ReturnsAsync(new StemeraldPriceResponse() { Ticker = "0.000019550817" });
 
         _currencyService.Setup(c => c.GetBySymbol("IRR", cancellationToken)).ReturnsAsync(new CurrencyResponse() { NormalizationScale = -8 });
         _currencyService.Setup(c => c.GetBySymbol("BCH", cancellationToken)).ReturnsAsync(new CurrencyResponse() { NormalizationScale = -1 });
@@ -224,11 +224,11 @@ public class BotBalancerTests
         _transactionService.Verify(s => s.Insert(It.Is<IList<TransactionEntity>>(el => el.All(bchTransactions.Contains)), cancellationToken), Times.Exactly(1));
         _transactionService.Verify(s => s.Insert(It.Is<IList<TransactionEntity>>(el => el.All(xrpTransactions.Contains)), cancellationToken), Times.Exactly(1));
 
-        _stexchangeService.Verify(s => s.UpdateBalance(trackingId, 1000, "XRP", "balancer", 2000, 0.0500m, It.IsAny<BusinessDetailModel<TransactionEntity>>(), cancellationToken), Times.Once());
+        _stexchangeService.Verify(s => s.UpdateBalance(trackingId, 1000, "XRP", "balancer", 2000, 0.0500m, It.IsAny<BusinessDetailModel<TransactionBusinessModel>>(), cancellationToken), Times.Once());
 
-        _stexchangeService.Verify(s => s.UpdateBalance(trackingId, 1001, "BCH", "balancer", 2001, -0.0240m, It.IsAny<BusinessDetailModel<TransactionEntity>>(), cancellationToken), Times.Once());
+        _stexchangeService.Verify(s => s.UpdateBalance(trackingId, 1001, "BCH", "balancer", 2001, -0.0240m, It.IsAny<BusinessDetailModel<TransactionBusinessModel>>(), cancellationToken), Times.Once());
 
-        _stexchangeService.Verify(s => s.UpdateBalance(trackingId, 1001, "IRR", "balancer", 2002, 0.0400000000000000m, It.IsAny<BusinessDetailModel<TransactionEntity>>(), cancellationToken), Times.Once());
+        _stexchangeService.Verify(s => s.UpdateBalance(trackingId, 1001, "IRR", "balancer", 2002, 0.0400000000000000m, It.IsAny<BusinessDetailModel<TransactionBusinessModel>>(), cancellationToken), Times.Once());
 
 
         #endregion
@@ -278,7 +278,7 @@ public class BotBalancerTests
 
         _transactionService.Verify(s => s.Insert(It.IsAny<IList<TransactionEntity>>(), cancellationToken), Times.Never());
 
-        _stexchangeService.Verify(s => s.UpdateBalance(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<decimal>(), It.IsAny<BusinessDetailModel<TransactionEntity>>(), cancellationToken), Times.Never());
+        _stexchangeService.Verify(s => s.UpdateBalance(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<decimal>(), It.IsAny<BusinessDetailModel<TransactionBusinessModel>>(), cancellationToken), Times.Never());
 
         #endregion
     }

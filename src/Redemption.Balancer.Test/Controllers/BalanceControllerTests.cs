@@ -4,6 +4,7 @@ using Moq;
 using Redemption.Balancer.Api.Application.Common.Contracts;
 using Redemption.Balancer.Api.Application.Common.Exceptions;
 using Redemption.Balancer.Api.Application.Common.Models.Dtos.Balances;
+using Redemption.Balancer.Api.Application.Common.Models.Externals.Stemeralds;
 using Redemption.Balancer.Api.Constants;
 using Redemption.Balancer.Api.Controllers;
 using Redemption.Balancer.Api.Domain.Entities;
@@ -62,8 +63,8 @@ public class BalanceControllerTests
         };
 
 
-        _priceService.Setup(p => p.GetPrice(symbol, cancellationToken)).ReturnsAsync(new Api.Application.Common.Models.Externals.Kenes.PriceResponse() { Ticker = priceTicker });
-        _priceService.Setup(p => p.GetPrice("USDT", cancellationToken)).ReturnsAsync(new Api.Application.Common.Models.Externals.Kenes.PriceResponse() { Ticker = usdtTicker });
+        _priceService.Setup(p => p.GetStemeraldPrice(symbol, cancellationToken)).ReturnsAsync(new StemeraldPriceResponse { Ticker = priceTicker.ToString() });
+        _priceService.Setup(p => p.GetStemeraldPrice("USDT", cancellationToken)).ReturnsAsync(new StemeraldPriceResponse() { Ticker = usdtTicker.ToString() });
 
         //the master is debit to b2b so value should be negative(it means that the value should be decreased from master and increase for b2b)
         _transactionService.Setup(w => w.GetDebitTransaction(Account.MasterId, Account.B2BId, symbol, priceTicker, usdtTicker, -value)).Returns(transactionEntityToBeInserted);
@@ -113,8 +114,8 @@ public class BalanceControllerTests
         };
 
 
-        _priceService.Setup(p => p.GetPrice(symbol, cancellationToken)).ReturnsAsync(new Api.Application.Common.Models.Externals.Kenes.PriceResponse() { Ticker = priceTicker });
-        _priceService.Setup(p => p.GetPrice("USDT", cancellationToken)).ReturnsAsync(new Api.Application.Common.Models.Externals.Kenes.PriceResponse() { Ticker = usdtTicker });
+        _priceService.Setup(p => p.GetStemeraldPrice(symbol, cancellationToken)).ReturnsAsync(new StemeraldPriceResponse { Ticker = priceTicker.ToString() });
+        _priceService.Setup(p => p.GetStemeraldPrice("USDT", cancellationToken)).ReturnsAsync(new StemeraldPriceResponse { Ticker = usdtTicker.ToString() });
 
         //the B2B is want to credit to master so value should be positive(it means that the value should be decreased from b2b and increase for master)
         _transactionService.Setup(w => w.GetCreditTransaction(Account.B2BId, Account.MasterId, symbol, priceTicker, usdtTicker, value)).Returns(transactionEntityToBeInserted);

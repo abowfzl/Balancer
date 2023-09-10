@@ -54,7 +54,19 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
 
             var parameterTransaction = transactions.First(t => t.FromAccountId == Account.MasterId || t.ToAccountId == Account.MasterId);
 
-            var businessDetail = new BusinessDetailModel<TransactionEntity>() { Name = "Insert Config", Detail = parameterTransaction };
+            var businessDetail = new BusinessDetailModel<TransactionBusinessModel>() 
+            { 
+                Name = "Insert Config",
+                Detail = new TransactionBusinessModel() 
+                { 
+                    Id = parameterTransaction.Id,
+                    FromAccountId = parameterTransaction.FromAccountId,
+                    ToAccountId = parameterTransaction.ToAccountId,
+                    Amount = parameterTransaction.Amount,
+                    Symbol = parameterTransaction.Symbol,
+                    TotalValue = parameterTransaction.TotalValue
+                } 
+            };
 
             await _stexchangeService.UpdateBalance(trackingId, accountEntity.StemeraldUserId, symbol, "balancer", parameterTransaction.Id, differenceBalance, businessDetail, cancellationToken);
 
@@ -89,7 +101,19 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
 
             var parameterTransaction = transactions.First(t => t.FromAccountId == Account.MasterId || t.ToAccountId == Account.MasterId);
 
-            var businessDetail = new BusinessDetailModel<TransactionEntity>() { Name = "Update Config", Detail = parameterTransaction };
+            var businessDetail = new BusinessDetailModel<TransactionBusinessModel>() 
+            { 
+                Name = "Update Config",
+                Detail = new TransactionBusinessModel()
+                {
+                    Id = parameterTransaction.Id,
+                    FromAccountId = parameterTransaction.FromAccountId,
+                    ToAccountId = parameterTransaction.ToAccountId,
+                    Amount = parameterTransaction.Amount,
+                    Symbol = parameterTransaction.Symbol,
+                    TotalValue = parameterTransaction.TotalValue
+                }
+            };
 
             await _stexchangeService.UpdateBalance(trackingId, accountEntity.StemeraldUserId, symbol, "balancer", parameterTransaction.Id, differenceBalance, businessDetail, cancellationToken);
 
@@ -106,13 +130,13 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
 
     private async Task<IList<TransactionEntity>> CreateInsertAccountConfigTransactions(int accountId, string symbol, decimal amount, CancellationToken cancellationToken)
     {
-        var symbolPrice = await _priceService.GetPrice(symbol, cancellationToken);
-        var usdtPrice = await _priceService.GetPrice("USDT", cancellationToken);
+        var symbolPrice = await _priceService.GetStemeraldPrice(symbol, cancellationToken);
+        var usdtPrice = await _priceService.GetStemeraldPrice("USDT", cancellationToken);
 
         var transactions = new List<TransactionEntity>
         {
-            _transactionService.GetDebitTransaction(Account.MasterId, accountId, symbol, symbolPrice.Ticker, usdtPrice.Ticker, -amount),
-            _transactionService.GetCreditTransaction(Account.B2BId, Account.MasterId, symbol, symbolPrice.Ticker, usdtPrice.Ticker, amount)
+            _transactionService.GetDebitTransaction(Account.MasterId, accountId, symbol, symbolPrice.DecimalTicker, usdtPrice.DecimalTicker, -amount),
+            _transactionService.GetCreditTransaction(Account.B2BId, Account.MasterId, symbol, symbolPrice.DecimalTicker, usdtPrice.DecimalTicker, amount)
         };
 
         return transactions;
@@ -120,20 +144,20 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
 
     private async Task<IList<TransactionEntity>> CreateUpdateAccountConfigTransactions(int accountId, string symbol, decimal differenceAmount, CancellationToken cancellationToken)
     {
-        var symbolPrice = await _priceService.GetPrice(symbol, cancellationToken);
-        var usdtPrice = await _priceService.GetPrice("USDT", cancellationToken);
+        var symbolPrice = await _priceService.GetStemeraldPrice(symbol, cancellationToken);
+        var usdtPrice = await _priceService.GetStemeraldPrice("USDT", cancellationToken);
 
         var transactions = new List<TransactionEntity>();
 
         if (differenceAmount > 0)
         {
-            transactions.Add(_transactionService.GetDebitTransaction(Account.MasterId, accountId, symbol, symbolPrice.Ticker, usdtPrice.Ticker, -differenceAmount));
-            transactions.Add(_transactionService.GetCreditTransaction(Account.B2BId, Account.MasterId, symbol, symbolPrice.Ticker, usdtPrice.Ticker, differenceAmount));
+            transactions.Add(_transactionService.GetDebitTransaction(Account.MasterId, accountId, symbol, symbolPrice.DecimalTicker, usdtPrice.DecimalTicker, -differenceAmount));
+            transactions.Add(_transactionService.GetCreditTransaction(Account.B2BId, Account.MasterId, symbol, symbolPrice.DecimalTicker, usdtPrice.DecimalTicker, differenceAmount));
         }
         else
         {
-            transactions.Add(_transactionService.GetDebitTransaction(accountId, Account.MasterId, symbol, symbolPrice.Ticker, usdtPrice.Ticker, differenceAmount));
-            transactions.Add(_transactionService.GetCreditTransaction(Account.MasterId, Account.B2BId, symbol, symbolPrice.Ticker, usdtPrice.Ticker, -differenceAmount));
+            transactions.Add(_transactionService.GetDebitTransaction(accountId, Account.MasterId, symbol, symbolPrice.DecimalTicker, usdtPrice.DecimalTicker, differenceAmount));
+            transactions.Add(_transactionService.GetCreditTransaction(Account.MasterId, Account.B2BId, symbol, symbolPrice.DecimalTicker, usdtPrice.DecimalTicker, -differenceAmount));
         }
 
 

@@ -70,15 +70,15 @@ public class BalanceController : ApiControllerBase
 
     private async Task<TransactionEntity> CreateBalanceTransaction(int fromAccountId, int toAccountId, string symbol, decimal differenceAmount, CancellationToken cancellationToken)
     {
-        var symbolPrice = await _priceService.GetPrice(symbol, cancellationToken);
-        var usdtPrice = await _priceService.GetPrice("USDT", cancellationToken);
+        var symbolPrice = await _priceService.GetStemeraldPrice(symbol, cancellationToken);
+        var usdtPrice = await _priceService.GetStemeraldPrice("USDT", cancellationToken);
 
         TransactionEntity transaction;
 
         if (differenceAmount > 0)
-            transaction = _transactionService.GetCreditTransaction(fromAccountId, toAccountId, symbol, symbolPrice.Ticker, usdtPrice.Ticker, differenceAmount);
+            transaction = _transactionService.GetCreditTransaction(fromAccountId, toAccountId, symbol, symbolPrice.DecimalTicker, usdtPrice.DecimalTicker, differenceAmount);
         else
-            transaction = _transactionService.GetDebitTransaction(fromAccountId, toAccountId, symbol, symbolPrice.Ticker, usdtPrice.Ticker, differenceAmount);
+            transaction = _transactionService.GetDebitTransaction(fromAccountId, toAccountId, symbol, symbolPrice.DecimalTicker, usdtPrice.DecimalTicker, differenceAmount);
 
         return transaction;
     }

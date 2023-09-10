@@ -136,6 +136,11 @@ void BindConfiguration()
     {
         builder.Configuration.GetSection("KenesConfig").Bind(settings);
     });
+
+    builder.Services.Configure<StemeraldConfig>(settings =>
+    {
+        builder.Configuration.GetSection("StemeraldConfig").Bind(settings);
+    });
 }
 
 void RegisterClients()
@@ -152,6 +157,13 @@ void RegisterClients()
         var basicConfig = builder.Configuration.GetSection("BasicConfig").Get<BasicConfig>();
 
         option.BaseAddress = new Uri(basicConfig.BaseAddress.TrimEnd('/'));
+    });
+
+    builder.Services.AddHttpClient<IStemeraldClient, StemeraldClient>(option =>
+    {
+        var stemeraldConfig = builder.Configuration.GetSection("StemeraldConfig").Get<StemeraldConfig>();
+
+        option.BaseAddress = new Uri(stemeraldConfig.BaseAddress.TrimEnd('/'));
     });
 }
 

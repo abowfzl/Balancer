@@ -42,8 +42,8 @@ public class TransactionService : ITransactionService
         return new TransactionEntity()
         {
             Amount = Math.Abs(differenceAmount),
-            CreatedAt = DateTime.UtcNow,//todo
-            CreatedBy = 0,//todo
+            CreatedAt = DateTime.UtcNow,
+            CreatedBy = 0,
             Symbol = symbol,
             TotalValue = PriceExtensions.CalculateDenormalizedPrice(basePrice, quotePrice) * Math.Abs(differenceAmount),
             FromAccountId = fromAccountId,

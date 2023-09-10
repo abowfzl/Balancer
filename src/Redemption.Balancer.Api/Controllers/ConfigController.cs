@@ -15,17 +15,23 @@ public class ConfigController : ApiControllerBase
     private readonly IAccountService _accountService;
     private readonly IWorkerService _workerService;
     private readonly ICurrencyService _currencyService;
+    private readonly IBalanceAccountConfigService _balanceAccountConfigService;
 
     private readonly IMapper _mapper;
 
-    public ConfigController(IAccountConfigService accountConfigService, IWorkerService workerService,
-        ICurrencyService currencyService, IAccountService accountService, IMapper mapper)
+    public ConfigController(IAccountConfigService accountConfigService,
+        IWorkerService workerService,
+        ICurrencyService currencyService,
+        IAccountService accountService,
+        IMapper mapper,
+        IBalanceAccountConfigService balanceAccountConfigService)
     {
         _accountConfigService = accountConfigService;
         _workerService = workerService;
         _currencyService = currencyService;
         _accountService = accountService;
         _mapper = mapper;
+        _balanceAccountConfigService = balanceAccountConfigService;
     }
 
     [HttpGet("[action]")]
@@ -47,6 +53,12 @@ public class ConfigController : ApiControllerBase
         var accountConfigEntityToAdd = _mapper.Map<AccountConfigEntity>(inputDto);
         accountConfigEntityToAdd.CreatedBy = GetUserIdFromHeader();
 
+        var accountEntity = await _accountService.GetById(accountConfigEntityToAdd.AccountId, cancellationToken);
+
+        var trackingId = Random.Shared.Next();
+
+        await _balanceAccountConfigService.BalanceInsertAccountConfig(trackingId, accountConfigEntityToAdd, accountEntity, cancellationToken);
+
         await _accountConfigService.Insert(accountConfigEntityToAdd, cancellationToken);
     }
 
@@ -56,12 +68,18 @@ public class ConfigController : ApiControllerBase
     {
         await ValidateInputs(inputDto, cancellationToken);
 
+        var accountConfigEntityToUpdate = _mapper.Map<AccountConfigEntity>(inputDto);
+
         var accountConfigEntity = await _accountConfigService.GetById(id, cancellationToken);
 
+        var accountEntity = await _accountService.GetById(accountConfigEntity.AccountId, cancellationToken);
+
+        await _balanceAccountConfigService.BalanceUpdateAccountConfig(accountConfigEntity, accountConfigEntityToUpdate, accountEntity, cancellationToken);
+
         accountConfigEntity.ModifiedBy = GetUserIdFromHeader();
-        accountConfigEntity.Value = inputDto.Value;
-        accountConfigEntity.AccountId = inputDto.AccountId;
-        accountConfigEntity.Symbol = inputDto.Symbol;
+        accountConfigEntity.Value = accountConfigEntityToUpdate.Value;
+        accountConfigEntity.AccountId = accountConfigEntityToUpdate.AccountId;
+        accountConfigEntity.Symbol = accountConfigEntityToUpdate.Symbol;
 
         await _accountConfigService.Update(accountConfigEntity, cancellationToken);
     }

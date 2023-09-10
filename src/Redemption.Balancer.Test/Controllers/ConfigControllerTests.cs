@@ -19,6 +19,7 @@ public class ConfigControllerTests
     private readonly Mock<IAccountService> _accountService;
     private readonly Mock<ICurrencyService> _currencyService;
     private readonly Mock<IMapper> _mapper;
+    private readonly Mock<IBalanceAccountConfigService> _balanceAccountConfigService;
 
     public ConfigControllerTests()
     {
@@ -27,8 +28,9 @@ public class ConfigControllerTests
         _currencyService = new Mock<ICurrencyService>();
         _accountService = new Mock<IAccountService>();
         _mapper = new Mock<IMapper>();
+        _balanceAccountConfigService = new Mock<IBalanceAccountConfigService>();
 
-        _configController = new ConfigController(_accountConfigService.Object, _workerService.Object, _currencyService.Object, _accountService.Object, _mapper.Object);
+        _configController = new ConfigController(_accountConfigService.Object, _workerService.Object, _currencyService.Object, _accountService.Object, _mapper.Object, _balanceAccountConfigService.Object);
     }
 
     [Fact]

@@ -1,6 +1,7 @@
 using Redemption.Balancer.Api.Application.Common.Contracts;
 using Redemption.Balancer.Api.Constants;
 using Redemption.Balancer.Api.Domain.Entities;
+using Redemption.Balancer.Api.Infrastructure.Common.Extensions;
 
 namespace Redemption.Balancer.Api.Infrastructure.Workers;
 
@@ -12,6 +13,7 @@ public class BotBalancer : BaseBalancer
     private readonly IAccountService _accountService;
     private readonly IAccountConfigService _accountConfigService;
     private readonly ITransactionService _transactionService;
+    private readonly ICurrencyService _currencyService;
 
     public BotBalancer(ILogger<BotBalancer> logger,
         IPriceService priceService,
@@ -19,7 +21,8 @@ public class BotBalancer : BaseBalancer
         IWorkerService workerService,
         IAccountService accountService,
         IAccountConfigService accountConfigService,
-        ITransactionService transactionService) : base(workerService, logger)
+        ITransactionService transactionService,
+        ICurrencyService currencyService) : base(workerService, logger)
     {
         _logger = logger;
         _priceService = priceService;
@@ -27,6 +30,7 @@ public class BotBalancer : BaseBalancer
         _accountService = accountService;
         _accountConfigService = accountConfigService;
         _transactionService = transactionService;
+        _currencyService = currencyService;
     }
 
     public override async Task BalanceAsync(int trackingId, CancellationToken cancellationToken)
@@ -58,16 +62,20 @@ public class BotBalancer : BaseBalancer
 
                         _ = accountBalances.TryGetValue(accountConfig.Symbol!, out var symbolBalance);
 
-                        var differenceBalance = decimal.Parse(symbolBalance!.Available) - accountConfig.Value;
+                        var currency = await _currencyService.GetBySymbol(accountConfig.Symbol!, cancellationToken);
+
+                        var differenceBalance = PriceExtensions.Normalize(decimal.Parse(symbolBalance!.Available), currency.NormalizationScale) - accountConfig.Value;
 
                         if (differenceBalance != 0)
                         {
                             var transactions = await CreateAccountTransactions(accountConfig.AccountId, accountConfig.Symbol!, differenceBalance, cancellationToken);
 
-                            //todo: parameters
-                            await _stexchangeService.UpdateBalance(trackingId, account.StemeraldUserId, accountConfig.Symbol!, "balance", trackingId, -differenceBalance, transactions, cancellationToken);
-
                             await _transactionService.Insert(transactions, cancellationToken);
+
+                            var parameterTransaction = transactions.First(t => t.FromAccountId == Account.MasterId || t.ToAccountId == Account.MasterId);
+
+                            await _stexchangeService.UpdateBalance(trackingId, account.StemeraldUserId, accountConfig.Symbol!, "autoBalance", parameterTransaction.Id, PriceExtensions.Denormalize(-differenceBalance, currency.NormalizationScale), parameterTransaction, cancellationToken);
+
 
                             _logger.LogInformation("Account:{accountName} transactions for symbol:{accountConfigSymbol} inserted", account.Name, accountConfig.Symbol);
                         }

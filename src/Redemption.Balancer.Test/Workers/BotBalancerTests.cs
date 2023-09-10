@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Moq;
 using Redemption.Balancer.Api.Application.Common.Contracts;
+using Redemption.Balancer.Api.Application.Common.Models.Externals.Basics;
 using Redemption.Balancer.Api.Application.Common.Models.Externals.Kenes;
 using Redemption.Balancer.Api.Constants;
 using Redemption.Balancer.Api.Domain.Entities;
@@ -20,6 +21,7 @@ public class BotBalancerTests
     private readonly Mock<IAccountConfigService> _accountConfigService;
     private readonly Mock<IAccountService> _accountService;
     private readonly Mock<IWorkerService> _workerService;
+    private readonly Mock<ICurrencyService> _currencyService;
 
 
     public BotBalancerTests()
@@ -31,6 +33,7 @@ public class BotBalancerTests
         _accountConfigService = new Mock<IAccountConfigService>();
         _workerService = new Mock<IWorkerService>();
         _accountService = new Mock<IAccountService>();
+        _currencyService = new Mock<ICurrencyService>();
 
         _botBalancer = new BotBalancer(mockLogger.Object,
             _priceService.Object,
@@ -38,7 +41,8 @@ public class BotBalancerTests
             _workerService.Object,
             _accountService.Object,
             _accountConfigService.Object,
-            _transactionService.Object);
+            _transactionService.Object,
+            _currencyService.Object);
     }
 
     [Fact]
@@ -99,8 +103,8 @@ public class BotBalancerTests
 
         var balances = new Dictionary<int, Dictionary<string, BalanceQueryResponse>>()
         {
-            { 1000, new Dictionary<string, BalanceQueryResponse>(){ { "XRP",new BalanceQueryResponse() { Available = "1500",Freeze= "600"} },{ "IRR",new BalanceQueryResponse() { Available= "1000000",Freeze="50000000" } } } } ,
-            { 1001, new Dictionary<string, BalanceQueryResponse>(){ { "BCH",new BalanceQueryResponse() { Available = "0.25",Freeze="0" } },{ "IRR",new BalanceQueryResponse() { Available = "1000000", Freeze = "0" } } } }
+            { 1000, new Dictionary<string, BalanceQueryResponse>(){ { "XRP",new BalanceQueryResponse() { Available = "0.1500",Freeze= "0.0600"} },{ "IRR",new BalanceQueryResponse() { Available= "0.01000000m",Freeze = "0.50000000" } } } } ,
+            { 1001, new Dictionary<string, BalanceQueryResponse>(){ { "BCH",new BalanceQueryResponse() { Available = "0.025",Freeze = "0" } },{ "IRR",new BalanceQueryResponse() { Available = "0.01000000", Freeze = "0" } } } }
         };
 
 
@@ -119,8 +123,13 @@ public class BotBalancerTests
         _priceService.Setup(p => p.GetPrice("BCH", cancellationToken)).ReturnsAsync(new PriceResponse() { Ticker = 0.007503100m });
         _priceService.Setup(p => p.GetPrice("XRP", cancellationToken)).ReturnsAsync(new PriceResponse() { Ticker = 0.000019550817m });
 
+        _currencyService.Setup(c => c.GetBySymbol("IRR", cancellationToken)).ReturnsAsync(new CurrencyResponse() { NormalizationScale = -8 });
+        _currencyService.Setup(c => c.GetBySymbol("BCH", cancellationToken)).ReturnsAsync(new CurrencyResponse() { NormalizationScale = -1 });
+        _currencyService.Setup(c => c.GetBySymbol("XRP", cancellationToken)).ReturnsAsync(new CurrencyResponse() { NormalizationScale = -4 });
+
         var xrpDebitTransaction = new TransactionEntity()
         {
+            Id = 2000,
             Symbol = "XRP",
             FromAccountId = Account.MasterId,
             ToAccountId = 10,
@@ -138,6 +147,7 @@ public class BotBalancerTests
 
         var bchDebitTransaction = new TransactionEntity()
         {
+            Id = 2001,
             Symbol = "BCH",
             FromAccountId = 11,
             ToAccountId = Account.MasterId,
@@ -156,6 +166,7 @@ public class BotBalancerTests
 
         var irrDebitTransaction = new TransactionEntity()
         {
+            Id = 2002,
             Symbol = "IRR",
             FromAccountId = Account.MasterId,
             ToAccountId = 11,
@@ -199,11 +210,11 @@ public class BotBalancerTests
         _transactionService.Verify(s => s.Insert(It.Is<IList<TransactionEntity>>(el => el.All(bchTransactions.Contains)), cancellationToken), Times.Exactly(1));
         _transactionService.Verify(s => s.Insert(It.Is<IList<TransactionEntity>>(el => el.All(xrpTransactions.Contains)), cancellationToken), Times.Exactly(1));
 
-        _stexchangeService.Verify(s => s.UpdateBalance(trackingId, 1000, "XRP", "balance", trackingId, 500, It.Is<IList<TransactionEntity>>(el => el.All(xrpTransactions.Contains)), cancellationToken), Times.Once());
+        _stexchangeService.Verify(s => s.UpdateBalance(trackingId, 1000, "XRP", "autoBalance", 2000, 0.0500m, It.Is<TransactionEntity>(el => el == xrpDebitTransaction), cancellationToken), Times.Once());
 
-        _stexchangeService.Verify(s => s.UpdateBalance(trackingId, 1001, "BCH", "balance", trackingId, -0.24m, It.Is<IList<TransactionEntity>>(el => el.All(bchTransactions.Contains)), cancellationToken), Times.Once());
+        _stexchangeService.Verify(s => s.UpdateBalance(trackingId, 1001, "BCH", "autoBalance", 2001, -0.0240m, It.Is<TransactionEntity>(el => el == bchDebitTransaction), cancellationToken), Times.Once());
 
-        _stexchangeService.Verify(s => s.UpdateBalance(trackingId, 1001, "IRR", "balance", trackingId, 4000000, It.Is<IList<TransactionEntity>>(el => el.All(irrTransactions.Contains)), cancellationToken), Times.Once());
+        _stexchangeService.Verify(s => s.UpdateBalance(trackingId, 1001, "IRR", "autoBalance", 2002, 0.0400000000000000m, It.Is<TransactionEntity>(el => el == irrDebitTransaction), cancellationToken), Times.Once());
 
 
         #endregion

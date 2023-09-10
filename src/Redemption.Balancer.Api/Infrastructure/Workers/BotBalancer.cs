@@ -1,4 +1,5 @@
 using Redemption.Balancer.Api.Application.Common.Contracts;
+using Redemption.Balancer.Api.Application.Common.Models;
 using Redemption.Balancer.Api.Constants;
 using Redemption.Balancer.Api.Domain.Entities;
 using Redemption.Balancer.Api.Infrastructure.Common.Extensions;
@@ -81,7 +82,9 @@ public class BotBalancer : BaseBalancer
 
                             var parameterTransaction = transactions.First(t => t.FromAccountId == Account.MasterId || t.ToAccountId == Account.MasterId);
 
-                            await _stexchangeService.UpdateBalance(trackingId, account.StemeraldUserId, accountConfig.Symbol!, "autoBalance", parameterTransaction.Id, PriceExtensions.Denormalize(-differenceBalance, currency.NormalizationScale), parameterTransaction, cancellationToken);
+                            var businessDetail = new BusinessDetailModel<TransactionEntity>() { Name = "balancer", Detail = parameterTransaction };
+
+                            await _stexchangeService.UpdateBalance(trackingId, account.StemeraldUserId, accountConfig.Symbol!, "balancer", parameterTransaction.Id, PriceExtensions.Denormalize(-differenceBalance, currency.NormalizationScale), businessDetail, cancellationToken);
                         }
                         else
                             _logger.LogInformation("Account:{accountName} balance for symbol:{accountConfigSymbol} isn't changed", account.Name, accountConfig.Symbol);

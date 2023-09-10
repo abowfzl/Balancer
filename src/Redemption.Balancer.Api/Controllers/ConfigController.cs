@@ -6,6 +6,7 @@ using Redemption.Balancer.Api.Application.Common.Exceptions;
 using Redemption.Balancer.Api.Application.Common.Models.Dtos.AccountConfigs;
 using Redemption.Balancer.Api.Domain.Entities;
 using Redemption.Balancer.Api.Domain.Enums;
+using Redemption.Balancer.Api.Infrastructure.Workers;
 
 namespace Redemption.Balancer.Api.Controllers;
 
@@ -14,21 +15,18 @@ public class ConfigController : ApiControllerBase
     private readonly IAccountConfigService _accountConfigService;
     private readonly IAccountService _accountService;
     private readonly IWorkerService _workerService;
-    private readonly ICurrencyService _currencyService;
     private readonly IBalanceAccountConfigService _balanceAccountConfigService;
 
     private readonly IMapper _mapper;
 
     public ConfigController(IAccountConfigService accountConfigService,
         IWorkerService workerService,
-        ICurrencyService currencyService,
         IAccountService accountService,
         IMapper mapper,
         IBalanceAccountConfigService balanceAccountConfigService)
     {
         _accountConfigService = accountConfigService;
         _workerService = workerService;
-        _currencyService = currencyService;
         _accountService = accountService;
         _mapper = mapper;
         _balanceAccountConfigService = balanceAccountConfigService;
@@ -48,7 +46,7 @@ public class ConfigController : ApiControllerBase
     [HttpPost("[action]")]
     public async Task AccountConfig(AccountConfigInputDto inputDto, CancellationToken cancellationToken)
     {
-        await ValidateInputs(inputDto, cancellationToken);
+        await IsWorkerRunning(cancellationToken);
 
         var accountConfigEntityToAdd = _mapper.Map<AccountConfigEntity>(inputDto);
         accountConfigEntityToAdd.CreatedBy = GetUserIdFromHeader();
@@ -66,7 +64,7 @@ public class ConfigController : ApiControllerBase
     [HttpPut("[action]/{id}")]
     public async Task AccountConfig(int id, AccountConfigInputDto inputDto, CancellationToken cancellationToken)
     {
-        await ValidateInputs(inputDto, cancellationToken);
+        await IsWorkerRunning(cancellationToken);
 
         var accountConfigEntityToUpdate = _mapper.Map<AccountConfigEntity>(inputDto);
 
@@ -74,7 +72,9 @@ public class ConfigController : ApiControllerBase
 
         var accountEntity = await _accountService.GetById(accountConfigEntity.AccountId, cancellationToken);
 
-        await _balanceAccountConfigService.BalanceUpdateAccountConfig(accountConfigEntity, accountConfigEntityToUpdate, accountEntity, cancellationToken);
+        var trackingId = Random.Shared.Next();
+
+        await _balanceAccountConfigService.BalanceUpdateAccountConfig(trackingId, accountConfigEntity, accountConfigEntityToUpdate, accountEntity, cancellationToken);
 
         accountConfigEntity.ModifiedBy = GetUserIdFromHeader();
         accountConfigEntity.Value = accountConfigEntityToUpdate.Value;
@@ -97,18 +97,11 @@ public class ConfigController : ApiControllerBase
 
     private async Task IsWorkerRunning(CancellationToken cancellationToken)
     {
-        var isWorkerRunning = await _workerService.IsWorkerRunning(cancellationToken);
+        var worker = await _workerService.GetByName(nameof(BotBalancer), cancellationToken);
+
+        var isWorkerRunning = await _workerService.IsWorkerRunning(worker, cancellationToken);
 
         if (isWorkerRunning)
             throw new ForbiddenException("The worker is running, you cannot make any changes on account configs, Please try again later.");
-    }
-
-    private async Task ValidateInputs(AccountConfigInputDto inputDto, CancellationToken cancellationToken)
-    {
-        await IsWorkerRunning(cancellationToken);
-
-        await _accountService.GetById(inputDto.AccountId, cancellationToken);
-
-        await _currencyService.GetBySymbol(inputDto.Symbol, cancellationToken);
     }
 }

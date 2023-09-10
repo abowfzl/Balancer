@@ -1,5 +1,6 @@
 
 using Redemption.Balancer.Api.Application.Common.Contracts;
+using Redemption.Balancer.Api.Application.Common.Models;
 using StexchangeClient.Contracts;
 using StexchangeClient.Models.Response.Assets;
 
@@ -14,7 +15,7 @@ public class StexchangeService : IStexchangeService
         _stexchangeRestClient = stexchangeRestClient;
     }
 
-    public async Task UpdateBalance<T>(int requestId, int userId, string assetName, string businessType, int businessId, decimal balanceChange, T details, CancellationToken cancellationToken)
+    public async Task UpdateBalance<T>(int requestId, int userId, string assetName, string businessType, int businessId, decimal balanceChange, BusinessDetailModel<T> details, CancellationToken cancellationToken)
     {
         var response = await _stexchangeRestClient.UpdateBalance(requestId, userId, assetName, businessType, businessId, balanceChange, details, cancellationToken);
 

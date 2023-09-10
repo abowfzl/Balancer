@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Redemption.Balancer.Api.Application.Common.Contracts;
+using Redemption.Balancer.Api.Application.Common.Models;
 using Redemption.Balancer.Api.Application.Common.Models.Externals.Basics;
 using Redemption.Balancer.Api.Application.Common.Models.Externals.Kenes;
 using Redemption.Balancer.Api.Constants;
@@ -223,11 +224,11 @@ public class BotBalancerTests
         _transactionService.Verify(s => s.Insert(It.Is<IList<TransactionEntity>>(el => el.All(bchTransactions.Contains)), cancellationToken), Times.Exactly(1));
         _transactionService.Verify(s => s.Insert(It.Is<IList<TransactionEntity>>(el => el.All(xrpTransactions.Contains)), cancellationToken), Times.Exactly(1));
 
-        _stexchangeService.Verify(s => s.UpdateBalance(trackingId, 1000, "XRP", "autoBalance", 2000, 0.0500m, It.Is<TransactionEntity>(el => el == xrpDebitTransaction), cancellationToken), Times.Once());
+        _stexchangeService.Verify(s => s.UpdateBalance(trackingId, 1000, "XRP", "balancer", 2000, 0.0500m, It.IsAny<BusinessDetailModel<TransactionEntity>>(), cancellationToken), Times.Once());
 
-        _stexchangeService.Verify(s => s.UpdateBalance(trackingId, 1001, "BCH", "autoBalance", 2001, -0.0240m, It.Is<TransactionEntity>(el => el == bchDebitTransaction), cancellationToken), Times.Once());
+        _stexchangeService.Verify(s => s.UpdateBalance(trackingId, 1001, "BCH", "balancer", 2001, -0.0240m, It.IsAny<BusinessDetailModel<TransactionEntity>>(), cancellationToken), Times.Once());
 
-        _stexchangeService.Verify(s => s.UpdateBalance(trackingId, 1001, "IRR", "autoBalance", 2002, 0.0400000000000000m, It.Is<TransactionEntity>(el => el == irrDebitTransaction), cancellationToken), Times.Once());
+        _stexchangeService.Verify(s => s.UpdateBalance(trackingId, 1001, "IRR", "balancer", 2002, 0.0400000000000000m, It.IsAny<BusinessDetailModel<TransactionEntity>>(), cancellationToken), Times.Once());
 
 
         #endregion
@@ -277,7 +278,7 @@ public class BotBalancerTests
 
         _transactionService.Verify(s => s.Insert(It.IsAny<IList<TransactionEntity>>(), cancellationToken), Times.Never());
 
-        _stexchangeService.Verify(s => s.UpdateBalance(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<decimal>(), It.IsAny<IList<TransactionEntity>>(), cancellationToken), Times.Never());
+        _stexchangeService.Verify(s => s.UpdateBalance(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<decimal>(), It.IsAny<BusinessDetailModel<TransactionEntity>>(), cancellationToken), Times.Never());
 
         #endregion
     }

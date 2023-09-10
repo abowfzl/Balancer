@@ -5,6 +5,7 @@ using Redemption.Balancer.Api.Application.Common.Contracts;
 using Redemption.Balancer.Api.Application.Common.Exceptions;
 using Redemption.Balancer.Api.Application.Common.Models.Dtos.AccountConfigs;
 using Redemption.Balancer.Api.Controllers;
+using Redemption.Balancer.Api.Domain.Entities;
 using Xunit;
 
 namespace Redemption.Balancer.Test.Controllers;
@@ -17,7 +18,6 @@ public class ConfigControllerTests
     private readonly Mock<IAccountConfigService> _accountConfigService;
     private readonly Mock<IWorkerService> _workerService;
     private readonly Mock<IAccountService> _accountService;
-    private readonly Mock<ICurrencyService> _currencyService;
     private readonly Mock<IMapper> _mapper;
     private readonly Mock<IBalanceAccountConfigService> _balanceAccountConfigService;
 
@@ -25,12 +25,11 @@ public class ConfigControllerTests
     {
         _accountConfigService = new Mock<IAccountConfigService>();
         _workerService = new Mock<IWorkerService>();
-        _currencyService = new Mock<ICurrencyService>();
         _accountService = new Mock<IAccountService>();
         _mapper = new Mock<IMapper>();
         _balanceAccountConfigService = new Mock<IBalanceAccountConfigService>();
 
-        _configController = new ConfigController(_accountConfigService.Object, _workerService.Object, _currencyService.Object, _accountService.Object, _mapper.Object, _balanceAccountConfigService.Object);
+        _configController = new ConfigController(_accountConfigService.Object, _workerService.Object, _accountService.Object, _mapper.Object, _balanceAccountConfigService.Object);
     }
 
     [Fact]
@@ -39,7 +38,7 @@ public class ConfigControllerTests
         int accountConfigId = 1;
         var cancellationToken = CancellationToken.None;
 
-        _workerService.Setup(ws => ws.IsWorkerRunning(cancellationToken)).ReturnsAsync(true);
+        _workerService.Setup(ws => ws.IsWorkerRunning(It.IsAny<WorkerEntity>(), cancellationToken)).ReturnsAsync(true);
 
         var action = async () => await _configController.AccountConfig(accountConfigId, cancellationToken);
 
@@ -60,7 +59,7 @@ public class ConfigControllerTests
             Value = 100
         };
 
-        _workerService.Setup(ws => ws.IsWorkerRunning(cancellationToken)).ReturnsAsync(true);
+        _workerService.Setup(ws => ws.IsWorkerRunning(It.IsAny<WorkerEntity>(), cancellationToken)).ReturnsAsync(true);
 
         var action = async () => await _configController.AccountConfig(accountConfigId, input, cancellationToken);
 
@@ -79,7 +78,7 @@ public class ConfigControllerTests
             Value = 100
         };
 
-        _workerService.Setup(ws => ws.IsWorkerRunning(cancellationToken)).ReturnsAsync(true);
+        _workerService.Setup(ws => ws.IsWorkerRunning(It.IsAny<WorkerEntity>(), cancellationToken)).ReturnsAsync(true);
 
         var action = async () => await _configController.AccountConfig(input, cancellationToken);
 

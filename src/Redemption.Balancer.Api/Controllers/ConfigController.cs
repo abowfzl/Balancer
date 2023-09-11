@@ -44,7 +44,7 @@ public class ConfigController : ApiControllerBase
 
     [Role(new[] { Role.Admin })]
     [HttpPost("[action]")]
-    public async Task AccountConfig(AccountConfigInputDto inputDto, CancellationToken cancellationToken)
+    public async ValueTask<bool> AccountConfig(AccountConfigInputDto inputDto, CancellationToken cancellationToken)
     {
         await IsWorkerRunning(cancellationToken);
 
@@ -58,11 +58,13 @@ public class ConfigController : ApiControllerBase
         await _balanceAccountConfigService.BalanceInsertAccountConfig(trackingId, accountConfigEntityToAdd, accountEntity, cancellationToken);
 
         await _accountConfigService.Insert(accountConfigEntityToAdd, cancellationToken);
+
+        return true;
     }
 
     [Role(new[] { Role.Admin })]
     [HttpPut("[action]/{id}")]
-    public async Task AccountConfig(int id, AccountConfigInputDto inputDto, CancellationToken cancellationToken)
+    public async ValueTask<bool> AccountConfig(int id, AccountConfigInputDto inputDto, CancellationToken cancellationToken)
     {
         await IsWorkerRunning(cancellationToken);
 
@@ -82,17 +84,30 @@ public class ConfigController : ApiControllerBase
         accountConfigEntity.Symbol = accountConfigEntityToUpdate.Symbol;
 
         await _accountConfigService.Update(accountConfigEntity, cancellationToken);
+
+        return true;
     }
 
     [Role(new[] { Role.Admin })]
     [HttpDelete("[action]/{id}")]
-    public async Task AccountConfig(int id, CancellationToken cancellationToken)
+    public async ValueTask<bool> AccountConfig(int id, CancellationToken cancellationToken)
     {
+        // validate requested user
+        _ = GetUserIdFromHeader();
+
         await IsWorkerRunning(cancellationToken);
 
         var accountConfigEntity = await _accountConfigService.GetById(id, cancellationToken);
 
+        var accountEntity = await _accountService.GetById(accountConfigEntity.AccountId, cancellationToken);
+
+        var trackingId = Random.Shared.Next();
+
+        await _balanceAccountConfigService.BalanceDeleteAccountConfig(trackingId, accountConfigEntity, accountEntity, cancellationToken);
+
         await _accountConfigService.Delete(accountConfigEntity, cancellationToken);
+
+        return true;
     }
 
     private async Task IsWorkerRunning(CancellationToken cancellationToken)

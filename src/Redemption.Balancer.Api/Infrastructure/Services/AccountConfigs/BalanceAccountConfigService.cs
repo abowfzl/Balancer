@@ -127,6 +127,48 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
         }
     }
 
+    public async Task BalanceDeleteAccountConfig(int trackingId, AccountConfigEntity accountConfigEntity, AccountEntity accountEntity, CancellationToken cancellationToken)
+    {
+        using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            var currency = await _currencyService.GetBySymbol(accountConfigEntity.Symbol!, cancellationToken);
+
+            var differenceBalance = 0 - accountConfigEntity.Value;
+
+            var transactions = await CreateDeleteAccountConfigTransactions(accountEntity.Id, accountConfigEntity.Symbol!, differenceBalance, cancellationToken);
+
+            await _transactionService.Insert(transactions, cancellationToken);
+
+            var parameterTransaction = transactions.First(t => t.FromAccountId == Account.MasterId || t.ToAccountId == Account.MasterId);
+
+            var businessDetail = new BusinessDetailModel<TransactionBusinessModel>()
+            {
+                Name = "Delete Config",
+                Detail = new TransactionBusinessModel()
+                {
+                    Id = parameterTransaction.Id,
+                    FromAccountId = parameterTransaction.FromAccountId,
+                    ToAccountId = parameterTransaction.ToAccountId,
+                    Amount = parameterTransaction.Amount,
+                    Symbol = parameterTransaction.Symbol,
+                    TotalValue = parameterTransaction.TotalValue
+                }
+            };
+
+            await _stexchangeService.UpdateBalance(trackingId, accountEntity.StemeraldUserId, accountConfigEntity.Symbol!, "balancer", parameterTransaction.Id, PriceExtensions.Denormalize(differenceBalance, currency.NormalizationScale), businessDetail, cancellationToken);
+
+            await transaction.CommitAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Exception in BalanceDeleteAccountConfig. CatchBlock:");
+
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
+    }
+
     private async Task<IList<TransactionEntity>> CreateInsertAccountConfigTransactions(int accountId, string symbol, decimal amount, CancellationToken cancellationToken)
     {
         var currencyReferencePrice = await _priceService.CalculateReferencePrice(symbol, cancellationToken);
@@ -160,4 +202,18 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
 
         return transactions;
     }
+
+    private async Task<IList<TransactionEntity>> CreateDeleteAccountConfigTransactions(int accountId, string symbol, decimal amount, CancellationToken cancellationToken)
+    {
+        var currencyReferencePrice = await _priceService.CalculateReferencePrice(symbol, cancellationToken);
+
+        var transactions = new List<TransactionEntity>
+        {
+            _transactionService.GetDebitTransaction(accountId,Account.MasterId, symbol, currencyReferencePrice, amount),
+            _transactionService.GetCreditTransaction(Account.MasterId, Account.B2BId, symbol, currencyReferencePrice, -amount)
+        };
+
+        return transactions;
+    }
+
 }

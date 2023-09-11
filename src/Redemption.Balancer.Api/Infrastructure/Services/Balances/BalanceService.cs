@@ -2,7 +2,6 @@
 using Redemption.Balancer.Api.Application.Common.Exceptions;
 using Redemption.Balancer.Api.Application.Common.Models.Balances;
 using Redemption.Balancer.Api.Application.Common.Models.Dtos.Balances;
-using Redemption.Balancer.Api.Constants;
 using Redemption.Balancer.Api.Domain.Entities;
 
 namespace Redemption.Balancer.Api.Infrastructure.Services.Balances;

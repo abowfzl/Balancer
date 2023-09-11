@@ -7,4 +7,6 @@ public interface IBalanceAccountConfigService
     Task BalanceInsertAccountConfig(int trackingId, AccountConfigEntity newAccountConfigEntity, AccountEntity accountEntity, CancellationToken cancellationToken);
 
     Task BalanceUpdateAccountConfig(int trackingId, AccountConfigEntity oldAccountConfigEntity, AccountConfigEntity newAccountConfigEntity, AccountEntity accountEntity, CancellationToken cancellationToken);
+
+    Task BalanceDeleteAccountConfig(int trackingId, AccountConfigEntity accountConfigEntity, AccountEntity accountEntity, CancellationToken cancellationToken);
 }

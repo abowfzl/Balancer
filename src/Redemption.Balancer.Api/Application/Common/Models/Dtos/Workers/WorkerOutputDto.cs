@@ -9,4 +9,12 @@ public class WorkerOutputDto
     public bool IsEnable { get; set; }
 
     public int Interval { get; set; }
+
+    public bool IsRunning { get; set; }
+
+    public DateTime? StartedAt { get; set; }
+
+    public DateTime? CompletedAt { get; set; }
+
+    public DateTime? FailedAt { get; set; }
 }

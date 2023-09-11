@@ -11,7 +11,7 @@
 	<ItemGroup>
 		<PackageReference Include="AspNetCore.Http.Extensions" Version="1.0.1" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.10" />
-		<PackageReference Include="StexchangeClient.Net" Version="1.0.3" />
+		<PackageReference Include="StexchangeClient.Net" Version="1.0.5" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
 	</ItemGroup>
 

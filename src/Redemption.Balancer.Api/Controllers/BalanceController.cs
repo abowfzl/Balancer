@@ -14,19 +14,16 @@ public class BalanceController : ApiControllerBase
 {
     private readonly ITransactionService _transactionService;
     private readonly IPriceService _priceService;
-    private readonly ICurrencyService _currencyService;
     private readonly IMapper _mapper;
     private readonly IBalanceService _balanceService;
 
     public BalanceController(ITransactionService transactionService,
         IPriceService priceService,
-        ICurrencyService currencyService,
         IMapper mapper,
         IBalanceService balanceService)
     {
         _transactionService = transactionService;
         _priceService = priceService;
-        _currencyService = currencyService;
         _mapper = mapper;
         _balanceService = balanceService;
     }
@@ -35,9 +32,10 @@ public class BalanceController : ApiControllerBase
     [HttpPost("[action]")]
     public async ValueTask<bool> Inject(BalanceInputDto inputDto, CancellationToken cancellationToken)
     {
-        await ValidateInputs(inputDto, cancellationToken);
+        ValidateInputs(inputDto);
 
         var transaction = await CreateBalanceTransaction(Account.B2BId, Account.MasterId, inputDto.Symbol, inputDto.Value, cancellationToken);
+        transaction.CreatedBy = GetUserIdFromHeader();
 
         await _transactionService.Insert(transaction, cancellationToken);
 
@@ -59,9 +57,10 @@ public class BalanceController : ApiControllerBase
     [HttpPost("[action]")]
     public async ValueTask<bool> Withdraw(BalanceInputDto inputDto, CancellationToken cancellationToken)
     {
-        await ValidateInputs(inputDto, cancellationToken);
+        ValidateInputs(inputDto);
 
         var transaction = await CreateBalanceTransaction(Account.MasterId, Account.B2BId, inputDto.Symbol, -inputDto.Value, cancellationToken);
+        transaction.CreatedBy = GetUserIdFromHeader();
 
         await _transactionService.Insert(transaction, cancellationToken);
 
@@ -70,23 +69,20 @@ public class BalanceController : ApiControllerBase
 
     private async Task<TransactionEntity> CreateBalanceTransaction(int fromAccountId, int toAccountId, string symbol, decimal differenceAmount, CancellationToken cancellationToken)
     {
-        var symbolPrice = await _priceService.GetStemeraldPrice(symbol, cancellationToken);
-        var usdtPrice = await _priceService.GetStemeraldPrice("USDT", cancellationToken);
+        var currencyReferencePrice = await _priceService.CalculateReferencePrice(symbol, cancellationToken);
 
         TransactionEntity transaction;
 
         if (differenceAmount > 0)
-            transaction = _transactionService.GetCreditTransaction(fromAccountId, toAccountId, symbol, symbolPrice.DecimalTicker, usdtPrice.DecimalTicker, differenceAmount);
+            transaction = _transactionService.GetCreditTransaction(fromAccountId, toAccountId, symbol, currencyReferencePrice, differenceAmount);
         else
-            transaction = _transactionService.GetDebitTransaction(fromAccountId, toAccountId, symbol, symbolPrice.DecimalTicker, usdtPrice.DecimalTicker, differenceAmount);
+            transaction = _transactionService.GetDebitTransaction(fromAccountId, toAccountId, symbol, currencyReferencePrice, differenceAmount);
 
         return transaction;
     }
 
-    private async Task ValidateInputs(BalanceInputDto inputDto, CancellationToken cancellationToken)
+    private void ValidateInputs(BalanceInputDto inputDto)
     {
-        _ = await _currencyService.GetBySymbol(inputDto.Symbol!, cancellationToken);
-
         if (inputDto.Value <= 0)
             throw new BadRequestException("Property 'Value' should be greater than 0");
     }

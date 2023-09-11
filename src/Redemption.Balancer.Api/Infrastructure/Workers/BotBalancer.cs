@@ -82,8 +82,8 @@ public class BotBalancer : BaseBalancer
 
                             var parameterTransaction = transactions.First(t => t.FromAccountId == Account.MasterId || t.ToAccountId == Account.MasterId);
 
-                            var businessDetail = new BusinessDetailModel<TransactionBusinessModel>() 
-                            { 
+                            var businessDetail = new BusinessDetailModel<TransactionBusinessModel>()
+                            {
                                 Name = "balancer",
                                 Detail = new TransactionBusinessModel()
                                 {
@@ -122,20 +122,19 @@ public class BotBalancer : BaseBalancer
 
     private async Task<IList<TransactionEntity>> CreateAccountTransactions(int accountId, string symbol, decimal differenceAmount, CancellationToken cancellationToken)
     {
-        var symbolPrice = await _priceService.GetStemeraldPrice(symbol, cancellationToken);
-        var usdtPrice = await _priceService.GetStemeraldPrice("USDT", cancellationToken);
+        var currencyReferencePrice = await _priceService.CalculateReferencePrice(symbol, cancellationToken);
 
         var transactions = new List<TransactionEntity>();
 
         if (differenceAmount > 0)
         {
-            transactions.Add(_transactionService.GetDebitTransaction(accountId, Account.MasterId, symbol, symbolPrice.DecimalTicker, usdtPrice.DecimalTicker, -differenceAmount));
-            transactions.Add(_transactionService.GetCreditTransaction(Account.UserId, accountId, symbol, symbolPrice.DecimalTicker, usdtPrice.DecimalTicker, differenceAmount));
+            transactions.Add(_transactionService.GetDebitTransaction(accountId, Account.MasterId, symbol, currencyReferencePrice, -differenceAmount));
+            transactions.Add(_transactionService.GetCreditTransaction(Account.UserId, accountId, symbol, currencyReferencePrice, differenceAmount));
         }
         else
         {
-            transactions.Add(_transactionService.GetDebitTransaction(accountId, Account.UserId, symbol, symbolPrice.DecimalTicker, usdtPrice.DecimalTicker, differenceAmount));
-            transactions.Add(_transactionService.GetCreditTransaction(Account.MasterId, accountId, symbol, symbolPrice.DecimalTicker, usdtPrice.DecimalTicker, -differenceAmount));
+            transactions.Add(_transactionService.GetDebitTransaction(accountId, Account.UserId, symbol, currencyReferencePrice, differenceAmount));
+            transactions.Add(_transactionService.GetCreditTransaction(Account.MasterId, accountId, symbol, currencyReferencePrice, -differenceAmount));
         }
 
         return transactions;

@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Redemption.Balancer.Api.Application.Common.Contracts;
 using Redemption.Balancer.Api.Domain.Entities;
-using Redemption.Balancer.Api.Infrastructure.Common.Extensions;
 using Redemption.Balancer.Api.Infrastructure.Persistence;
 
 namespace Redemption.Balancer.Api.Infrastructure.Services.Transactions;
@@ -32,7 +31,7 @@ public class TransactionService : ITransactionService
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public TransactionEntity GetDebitTransaction(int fromAccountId, int toAccountId, string symbol, decimal basePrice, decimal quotePrice, decimal differenceAmount)
+    public TransactionEntity GetDebitTransaction(int fromAccountId, int toAccountId, string symbol, decimal referencePrice, decimal differenceAmount)
     {
         if (differenceAmount < 0 is false)
         {
@@ -45,13 +44,13 @@ public class TransactionService : ITransactionService
             CreatedAt = DateTime.UtcNow,
             CreatedBy = 0,
             Symbol = symbol,
-            TotalValue = PriceExtensions.CalculateDenormalizedPrice(basePrice, quotePrice) * Math.Abs(differenceAmount),
+            TotalValue = referencePrice * Math.Abs(differenceAmount),
             FromAccountId = fromAccountId,
             ToAccountId = toAccountId,
         };
     }
 
-    public TransactionEntity GetCreditTransaction(int fromAccountId, int toAccountId, string symbol, decimal basePrice, decimal quotePrice, decimal differenceAmount)
+    public TransactionEntity GetCreditTransaction(int fromAccountId, int toAccountId, string symbol, decimal referencePrice, decimal differenceAmount)
     {
         if (differenceAmount > 0 is false)
         {
@@ -64,7 +63,7 @@ public class TransactionService : ITransactionService
             CreatedAt = DateTime.UtcNow,
             CreatedBy = 0,
             Symbol = symbol,
-            TotalValue = PriceExtensions.CalculateDenormalizedPrice(basePrice, quotePrice) * Math.Abs(differenceAmount),
+            TotalValue = referencePrice * Math.Abs(differenceAmount),
             FromAccountId = fromAccountId,
             ToAccountId = toAccountId,
         };

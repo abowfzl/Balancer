@@ -8,4 +8,6 @@ public interface IPriceService
     Task<PriceResponse> GetPrice(string currencySymbol, CancellationToken cancellationToken);
 
     Task<StemeraldPriceResponse> GetStemeraldPrice(string currencySymbol, CancellationToken cancellationToken);
+
+    ValueTask<decimal> CalculateReferencePrice(string symbol, CancellationToken cancellationToken);
 }

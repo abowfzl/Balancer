@@ -1,5 +1,6 @@
 using AutoMapper;
 using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Redemption.Balancer.Api.Application.Common.Contracts;
 using Redemption.Balancer.Api.Application.Common.Exceptions;
@@ -9,6 +10,7 @@ using Redemption.Balancer.Api.Constants;
 using Redemption.Balancer.Api.Controllers;
 using Redemption.Balancer.Api.Domain.Entities;
 using Redemption.Balancer.Api.Infrastructure.Common.Extensions;
+using Redemption.Balancer.Test.Fakes;
 using Xunit;
 
 namespace Redemption.Balancer.Test.Controllers;
@@ -20,7 +22,6 @@ public class BalanceControllerTests
 
     private readonly Mock<ITransactionService> _transactionService;
     private readonly Mock<IPriceService> _priceService;
-    private readonly Mock<ICurrencyService> _currencyService;
     private readonly Mock<IBalanceService> _balanceService;
     private readonly Mock<IMapper> _mapper;
 
@@ -28,22 +29,26 @@ public class BalanceControllerTests
     {
         _transactionService = new Mock<ITransactionService>();
         _priceService = new Mock<IPriceService>();
-        _currencyService = new Mock<ICurrencyService>();
         _balanceService = new Mock<IBalanceService>();
         _mapper = new Mock<IMapper>();
 
-        _balanceController = new BalanceController(_transactionService.Object, _priceService.Object, _currencyService.Object, _mapper.Object, _balanceService.Object);
+        _balanceController = new BalanceController(_transactionService.Object, _priceService.Object, _mapper.Object, _balanceService.Object)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = FakeHttpContext.CreateFakeHttpContext()
+            }
+        };
     }
 
     [Theory]
     [InlineData("USDT", 100, 0.000038622580)]
     [InlineData("IRR", 100000, 0.000000000767022)]
     [InlineData("DOGE", 5000, .00000243901591)]
-    public async Task Insert_Withdraw_Transaction(string symbol, decimal value, decimal priceTicker)
+    public async Task Insert_Withdraw_Transaction(string symbol, decimal value, decimal referencePrice)
     {
         #region Arrange
 
-        var usdtTicker = 0.000038622580m;
         var cancellationToken = CancellationToken.None;
 
         var transactionEntityToBeInserted = new TransactionEntity()
@@ -51,7 +56,7 @@ public class BalanceControllerTests
             Id = 1,
             Symbol = symbol,
             Amount = value,
-            TotalValue = PriceExtensions.CalculateDenormalizedPrice(priceTicker, usdtTicker) * value,
+            TotalValue = referencePrice * value,
             ToAccountId = Account.B2BId,
             FromAccountId = Account.MasterId,
         };
@@ -63,11 +68,10 @@ public class BalanceControllerTests
         };
 
 
-        _priceService.Setup(p => p.GetStemeraldPrice(symbol, cancellationToken)).ReturnsAsync(new StemeraldPriceResponse { Ticker = priceTicker.ToString() });
-        _priceService.Setup(p => p.GetStemeraldPrice("USDT", cancellationToken)).ReturnsAsync(new StemeraldPriceResponse() { Ticker = usdtTicker.ToString() });
+        _priceService.Setup(p => p.CalculateReferencePrice(symbol, cancellationToken)).ReturnsAsync(referencePrice);
 
         //the master is debit to b2b so value should be negative(it means that the value should be decreased from master and increase for b2b)
-        _transactionService.Setup(w => w.GetDebitTransaction(Account.MasterId, Account.B2BId, symbol, priceTicker, usdtTicker, -value)).Returns(transactionEntityToBeInserted);
+        _transactionService.Setup(w => w.GetDebitTransaction(Account.MasterId, Account.B2BId, symbol, referencePrice, -value)).Returns(transactionEntityToBeInserted);
 
         #endregion
 
@@ -87,14 +91,13 @@ public class BalanceControllerTests
     }
 
     [Theory]
-    [InlineData("USDT", 100, 0.000038622580)]
-    [InlineData("IRR", 100000, 0.000000000767022)]
-    [InlineData("DOGE", 5000, .000000243901591)]
-    public async Task Insert_Inject_Transaction(string symbol, decimal value, decimal priceTicker)
+    [InlineData("USDT", 100, 1)]
+    [InlineData("IRR", 100000, 50312.69679600254)]
+    [InlineData("DOGE", 5000, 0.0063149999559843)]
+    public async Task Insert_Inject_Transaction(string symbol, decimal value, decimal referencePrice)
     {
         #region Arrange
 
-        var usdtTicker = 0.000038622580m;
         var cancellationToken = CancellationToken.None;
 
         var transactionEntityToBeInserted = new TransactionEntity()
@@ -102,7 +105,7 @@ public class BalanceControllerTests
             Id = 1,
             Symbol = symbol,
             Amount = value,
-            TotalValue = PriceExtensions.CalculateDenormalizedPrice(priceTicker, usdtTicker) * value,
+            TotalValue = referencePrice * value,
             ToAccountId = Account.MasterId,
             FromAccountId = Account.B2BId,
         };
@@ -114,11 +117,10 @@ public class BalanceControllerTests
         };
 
 
-        _priceService.Setup(p => p.GetStemeraldPrice(symbol, cancellationToken)).ReturnsAsync(new StemeraldPriceResponse { Ticker = priceTicker.ToString() });
-        _priceService.Setup(p => p.GetStemeraldPrice("USDT", cancellationToken)).ReturnsAsync(new StemeraldPriceResponse { Ticker = usdtTicker.ToString() });
+        _priceService.Setup(p => p.CalculateReferencePrice(symbol, cancellationToken)).ReturnsAsync(referencePrice);
 
         //the B2B is want to credit to master so value should be positive(it means that the value should be decreased from b2b and increase for master)
-        _transactionService.Setup(w => w.GetCreditTransaction(Account.B2BId, Account.MasterId, symbol, priceTicker, usdtTicker, value)).Returns(transactionEntityToBeInserted);
+        _transactionService.Setup(w => w.GetCreditTransaction(Account.B2BId, Account.MasterId, symbol, referencePrice, value)).Returns(transactionEntityToBeInserted);
 
         #endregion
 

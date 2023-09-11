@@ -54,21 +54,21 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
 
             var parameterTransaction = transactions.First(t => t.FromAccountId == Account.MasterId || t.ToAccountId == Account.MasterId);
 
-            var businessDetail = new BusinessDetailModel<TransactionBusinessModel>() 
-            { 
+            var businessDetail = new BusinessDetailModel<TransactionBusinessModel>()
+            {
                 Name = "Insert Config",
-                Detail = new TransactionBusinessModel() 
-                { 
+                Detail = new TransactionBusinessModel()
+                {
                     Id = parameterTransaction.Id,
                     FromAccountId = parameterTransaction.FromAccountId,
                     ToAccountId = parameterTransaction.ToAccountId,
                     Amount = parameterTransaction.Amount,
                     Symbol = parameterTransaction.Symbol,
                     TotalValue = parameterTransaction.TotalValue
-                } 
+                }
             };
 
-            await _stexchangeService.UpdateBalance(trackingId, accountEntity.StemeraldUserId, symbol, "balancer", parameterTransaction.Id, differenceBalance, businessDetail, cancellationToken);
+            await _stexchangeService.UpdateBalance(trackingId, accountEntity.StemeraldUserId, symbol, "balancer", parameterTransaction.Id, PriceExtensions.Denormalize(differenceBalance, currency.NormalizationScale), businessDetail, cancellationToken);
 
             await transaction.CommitAsync(cancellationToken);
         }
@@ -87,12 +87,11 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
 
         var symbol = oldAccountConfigEntity.Symbol!;
 
-        //check symbol
-        await _currencyService.GetBySymbol(symbol, cancellationToken);
-
         using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
         try
         {
+            var currency = await _currencyService.GetBySymbol(symbol, cancellationToken);
+
             var differenceBalance = newAccountConfigEntity.Value - oldAccountConfigEntity.Value;
 
             var transactions = await CreateUpdateAccountConfigTransactions(accountEntity.Id, symbol, differenceBalance, cancellationToken);
@@ -101,8 +100,8 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
 
             var parameterTransaction = transactions.First(t => t.FromAccountId == Account.MasterId || t.ToAccountId == Account.MasterId);
 
-            var businessDetail = new BusinessDetailModel<TransactionBusinessModel>() 
-            { 
+            var businessDetail = new BusinessDetailModel<TransactionBusinessModel>()
+            {
                 Name = "Update Config",
                 Detail = new TransactionBusinessModel()
                 {
@@ -115,7 +114,7 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
                 }
             };
 
-            await _stexchangeService.UpdateBalance(trackingId, accountEntity.StemeraldUserId, symbol, "balancer", parameterTransaction.Id, differenceBalance, businessDetail, cancellationToken);
+            await _stexchangeService.UpdateBalance(trackingId, accountEntity.StemeraldUserId, symbol, "balancer", parameterTransaction.Id, PriceExtensions.Denormalize(differenceBalance, currency.NormalizationScale), businessDetail, cancellationToken);
 
             await transaction.CommitAsync(cancellationToken);
         }
@@ -130,13 +129,12 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
 
     private async Task<IList<TransactionEntity>> CreateInsertAccountConfigTransactions(int accountId, string symbol, decimal amount, CancellationToken cancellationToken)
     {
-        var symbolPrice = await _priceService.GetStemeraldPrice(symbol, cancellationToken);
-        var usdtPrice = await _priceService.GetStemeraldPrice("USDT", cancellationToken);
+        var currencyReferencePrice = await _priceService.CalculateReferencePrice(symbol, cancellationToken);
 
         var transactions = new List<TransactionEntity>
         {
-            _transactionService.GetDebitTransaction(Account.MasterId, accountId, symbol, symbolPrice.DecimalTicker, usdtPrice.DecimalTicker, -amount),
-            _transactionService.GetCreditTransaction(Account.B2BId, Account.MasterId, symbol, symbolPrice.DecimalTicker, usdtPrice.DecimalTicker, amount)
+            _transactionService.GetDebitTransaction(Account.MasterId, accountId, symbol, currencyReferencePrice, -amount),
+            _transactionService.GetCreditTransaction(Account.B2BId, Account.MasterId, symbol, currencyReferencePrice, amount)
         };
 
         return transactions;
@@ -144,20 +142,19 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
 
     private async Task<IList<TransactionEntity>> CreateUpdateAccountConfigTransactions(int accountId, string symbol, decimal differenceAmount, CancellationToken cancellationToken)
     {
-        var symbolPrice = await _priceService.GetStemeraldPrice(symbol, cancellationToken);
-        var usdtPrice = await _priceService.GetStemeraldPrice("USDT", cancellationToken);
+        var currencyReferencePrice = await _priceService.CalculateReferencePrice(symbol, cancellationToken);
 
         var transactions = new List<TransactionEntity>();
 
         if (differenceAmount > 0)
         {
-            transactions.Add(_transactionService.GetDebitTransaction(Account.MasterId, accountId, symbol, symbolPrice.DecimalTicker, usdtPrice.DecimalTicker, -differenceAmount));
-            transactions.Add(_transactionService.GetCreditTransaction(Account.B2BId, Account.MasterId, symbol, symbolPrice.DecimalTicker, usdtPrice.DecimalTicker, differenceAmount));
+            transactions.Add(_transactionService.GetDebitTransaction(Account.MasterId, accountId, symbol, currencyReferencePrice, -differenceAmount));
+            transactions.Add(_transactionService.GetCreditTransaction(Account.B2BId, Account.MasterId, symbol, currencyReferencePrice, differenceAmount));
         }
         else
         {
-            transactions.Add(_transactionService.GetDebitTransaction(accountId, Account.MasterId, symbol, symbolPrice.DecimalTicker, usdtPrice.DecimalTicker, differenceAmount));
-            transactions.Add(_transactionService.GetCreditTransaction(Account.MasterId, Account.B2BId, symbol, symbolPrice.DecimalTicker, usdtPrice.DecimalTicker, -differenceAmount));
+            transactions.Add(_transactionService.GetDebitTransaction(accountId, Account.MasterId, symbol, currencyReferencePrice, differenceAmount));
+            transactions.Add(_transactionService.GetCreditTransaction(Account.MasterId, Account.B2BId, symbol, currencyReferencePrice, -differenceAmount));
         }
 
 

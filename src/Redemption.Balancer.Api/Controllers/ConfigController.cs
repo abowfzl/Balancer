@@ -69,6 +69,7 @@ public class ConfigController : ApiControllerBase
         var accountConfigEntityToUpdate = _mapper.Map<AccountConfigEntity>(inputDto);
 
         var accountConfigEntity = await _accountConfigService.GetById(id, cancellationToken);
+        accountConfigEntity.ModifiedBy = GetUserIdFromHeader();
 
         var accountEntity = await _accountService.GetById(accountConfigEntity.AccountId, cancellationToken);
 
@@ -76,7 +77,6 @@ public class ConfigController : ApiControllerBase
 
         await _balanceAccountConfigService.BalanceUpdateAccountConfig(trackingId, accountConfigEntity, accountConfigEntityToUpdate, accountEntity, cancellationToken);
 
-        accountConfigEntity.ModifiedBy = GetUserIdFromHeader();
         accountConfigEntity.Value = accountConfigEntityToUpdate.Value;
         accountConfigEntity.AccountId = accountConfigEntityToUpdate.AccountId;
         accountConfigEntity.Symbol = accountConfigEntityToUpdate.Symbol;

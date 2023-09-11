@@ -196,14 +196,14 @@ public class BotBalancerTests
             TotalValue = 79.50279461700032m
         };
 
-        _transactionService.Setup(p => p.GetCreditTransaction(Account.MasterId, 10, "XRP", 0.497m, 500)).Returns(xrpDebitTransaction);
-        _transactionService.Setup(p => p.GetDebitTransaction(10, Account.UserId, "XRP", 0.497m, -500)).Returns(xrpCreditTransaction);
+        _transactionService.Setup(p => p.GetCreditTransaction(Account.MasterId, 10, "XRP", 0.497m, 500, "balancer")).Returns(xrpDebitTransaction);
+        _transactionService.Setup(p => p.GetDebitTransaction(10, Account.UserId, "XRP", 0.497m, -500, "balancer")).Returns(xrpCreditTransaction);
 
-        _transactionService.Setup(p => p.GetCreditTransaction(Account.UserId, 11, "BCH", 187.54m, 0.24m)).Returns(bchCreditTransaction);
-        _transactionService.Setup(p => p.GetDebitTransaction(11, Account.MasterId, "BCH", 187.54m, -0.24m)).Returns(bchDebitTransaction);
+        _transactionService.Setup(p => p.GetCreditTransaction(Account.UserId, 11, "BCH", 187.54m, 0.24m, "balancer")).Returns(bchCreditTransaction);
+        _transactionService.Setup(p => p.GetDebitTransaction(11, Account.MasterId, "BCH", 187.54m, -0.24m, "balancer")).Returns(bchDebitTransaction);
 
-        _transactionService.Setup(p => p.GetCreditTransaction(Account.MasterId, 11, "IRR", 50312.69679600254m, 4000000)).Returns(irrCreditTransaction);
-        _transactionService.Setup(p => p.GetDebitTransaction(11, Account.UserId, "IRR", 50312.69679600254m, -4000000)).Returns(irrDebitTransaction);
+        _transactionService.Setup(p => p.GetCreditTransaction(Account.MasterId, 11, "IRR", 50312.69679600254m, 4000000, "balancer")).Returns(irrCreditTransaction);
+        _transactionService.Setup(p => p.GetDebitTransaction(11, Account.UserId, "IRR", 50312.69679600254m, -4000000, "balancer")).Returns(irrDebitTransaction);
 
         #endregion
 

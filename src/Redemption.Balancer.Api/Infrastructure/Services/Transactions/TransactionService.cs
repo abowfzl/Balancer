@@ -31,7 +31,7 @@ public class TransactionService : ITransactionService
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public TransactionEntity GetDebitTransaction(int fromAccountId, int toAccountId, string symbol, decimal referencePrice, decimal differenceAmount)
+    public TransactionEntity GetDebitTransaction(int fromAccountId, int toAccountId, string symbol, decimal referencePrice, decimal differenceAmount, string source)
     {
         if (differenceAmount < 0 is false)
         {
@@ -47,10 +47,11 @@ public class TransactionService : ITransactionService
             TotalValue = referencePrice * Math.Abs(differenceAmount),
             FromAccountId = fromAccountId,
             ToAccountId = toAccountId,
+            Source = source
         };
     }
 
-    public TransactionEntity GetCreditTransaction(int fromAccountId, int toAccountId, string symbol, decimal referencePrice, decimal differenceAmount)
+    public TransactionEntity GetCreditTransaction(int fromAccountId, int toAccountId, string symbol, decimal referencePrice, decimal differenceAmount, string source)
     {
         if (differenceAmount > 0 is false)
         {
@@ -66,6 +67,7 @@ public class TransactionService : ITransactionService
             TotalValue = referencePrice * Math.Abs(differenceAmount),
             FromAccountId = fromAccountId,
             ToAccountId = toAccountId,
+            Source = source
         };
     }
 

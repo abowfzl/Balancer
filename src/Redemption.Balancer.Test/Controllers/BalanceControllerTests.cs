@@ -71,7 +71,7 @@ public class BalanceControllerTests
         _priceService.Setup(p => p.CalculateReferencePrice(symbol, cancellationToken)).ReturnsAsync(referencePrice);
 
         //the master is debit to b2b so value should be negative(it means that the value should be decreased from master and increase for b2b)
-        _transactionService.Setup(w => w.GetDebitTransaction(Account.MasterId, Account.B2BId, symbol, referencePrice, -value)).Returns(transactionEntityToBeInserted);
+        _transactionService.Setup(w => w.GetDebitTransaction(Account.MasterId, Account.B2BId, symbol, referencePrice, -value, "withdraw")).Returns(transactionEntityToBeInserted);
 
         #endregion
 
@@ -120,7 +120,7 @@ public class BalanceControllerTests
         _priceService.Setup(p => p.CalculateReferencePrice(symbol, cancellationToken)).ReturnsAsync(referencePrice);
 
         //the B2B is want to credit to master so value should be positive(it means that the value should be decreased from b2b and increase for master)
-        _transactionService.Setup(w => w.GetCreditTransaction(Account.B2BId, Account.MasterId, symbol, referencePrice, value)).Returns(transactionEntityToBeInserted);
+        _transactionService.Setup(w => w.GetCreditTransaction(Account.B2BId, Account.MasterId, symbol, referencePrice, value, "inject")).Returns(transactionEntityToBeInserted);
 
         #endregion
 

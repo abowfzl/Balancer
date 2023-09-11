@@ -34,7 +34,7 @@ public static class AccountConfigurations
                 Name = "Master",
                 StemeraldUserId = 0,
                 CreatedBy = 0,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = new DateTime(2023, 9, 10, 0, 0, 0, 0, DateTimeKind.Utc),
             },
             new AccountEntity()
             {
@@ -42,7 +42,7 @@ public static class AccountConfigurations
                 Name = "User",
                 StemeraldUserId = 0,
                 CreatedBy = 0,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = new DateTime(2023, 9, 10, 0, 0, 0, 0, DateTimeKind.Utc),
             },
             new AccountEntity()
             {
@@ -50,7 +50,7 @@ public static class AccountConfigurations
                 Name = "B2B",
                 StemeraldUserId = 0,
                 CreatedBy = 0,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = new DateTime(2023, 9, 10, 0, 0, 0, 0, DateTimeKind.Utc),
             });
     }
 }

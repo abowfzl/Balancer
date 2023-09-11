@@ -175,8 +175,8 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
 
         var transactions = new List<TransactionEntity>
         {
-            _transactionService.GetDebitTransaction(Account.MasterId, accountId, symbol, currencyReferencePrice, -amount),
-            _transactionService.GetCreditTransaction(Account.B2BId, Account.MasterId, symbol, currencyReferencePrice, amount)
+            _transactionService.GetDebitTransaction(Account.MasterId, accountId, symbol, currencyReferencePrice, -amount, "insert config"),
+            _transactionService.GetCreditTransaction(Account.B2BId, Account.MasterId, symbol, currencyReferencePrice, amount, "insert config")
         };
 
         return transactions;
@@ -190,13 +190,13 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
 
         if (differenceAmount > 0)
         {
-            transactions.Add(_transactionService.GetDebitTransaction(Account.MasterId, accountId, symbol, currencyReferencePrice, -differenceAmount));
-            transactions.Add(_transactionService.GetCreditTransaction(Account.B2BId, Account.MasterId, symbol, currencyReferencePrice, differenceAmount));
+            transactions.Add(_transactionService.GetDebitTransaction(Account.MasterId, accountId, symbol, currencyReferencePrice, -differenceAmount, "update config"));
+            transactions.Add(_transactionService.GetCreditTransaction(Account.B2BId, Account.MasterId, symbol, currencyReferencePrice, differenceAmount, "update config"));
         }
         else
         {
-            transactions.Add(_transactionService.GetDebitTransaction(accountId, Account.MasterId, symbol, currencyReferencePrice, differenceAmount));
-            transactions.Add(_transactionService.GetCreditTransaction(Account.MasterId, Account.B2BId, symbol, currencyReferencePrice, -differenceAmount));
+            transactions.Add(_transactionService.GetDebitTransaction(accountId, Account.MasterId, symbol, currencyReferencePrice, differenceAmount, "update config"));
+            transactions.Add(_transactionService.GetCreditTransaction(Account.MasterId, Account.B2BId, symbol, currencyReferencePrice, -differenceAmount, "update config"));
         }
 
 
@@ -209,8 +209,8 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
 
         var transactions = new List<TransactionEntity>
         {
-            _transactionService.GetDebitTransaction(accountId,Account.MasterId, symbol, currencyReferencePrice, amount),
-            _transactionService.GetCreditTransaction(Account.MasterId, Account.B2BId, symbol, currencyReferencePrice, -amount)
+            _transactionService.GetDebitTransaction(accountId,Account.MasterId, symbol, currencyReferencePrice, amount, "delete config"),
+            _transactionService.GetCreditTransaction(Account.MasterId, Account.B2BId, symbol, currencyReferencePrice, -amount, "delete config")
         };
 
         return transactions;

@@ -13,6 +13,7 @@ public static class TransactionConfigurations
 
             entity.Property(e => e.Symbol).HasMaxLength(16);
 
+            entity.Property(e => e.Source).HasMaxLength(32);
 
             entity.HasOne(d => d.FromAccount)
                 .WithMany(p => p.FromTransactions)

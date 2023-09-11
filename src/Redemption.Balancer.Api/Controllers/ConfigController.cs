@@ -92,10 +92,10 @@ public class ConfigController : ApiControllerBase
     [HttpDelete("[action]/{id}")]
     public async ValueTask<bool> AccountConfig(int id, CancellationToken cancellationToken)
     {
+        await IsWorkerRunning(cancellationToken);
+
         // validate requested user
         _ = GetUserIdFromHeader();
-
-        await IsWorkerRunning(cancellationToken);
 
         var accountConfigEntity = await _accountConfigService.GetById(id, cancellationToken);
 

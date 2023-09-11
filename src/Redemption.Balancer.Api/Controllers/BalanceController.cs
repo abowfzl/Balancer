@@ -34,7 +34,7 @@ public class BalanceController : ApiControllerBase
     {
         ValidateInputs(inputDto);
 
-        var transaction = await CreateBalanceTransaction(Account.B2BId, Account.MasterId, inputDto.Symbol, inputDto.Value, cancellationToken);
+        var transaction = await CreateBalanceTransaction(Account.B2BId, Account.MasterId, inputDto.Symbol, inputDto.Value, "inject", cancellationToken);
         transaction.CreatedBy = GetUserIdFromHeader();
 
         await _transactionService.Insert(transaction, cancellationToken);
@@ -59,7 +59,7 @@ public class BalanceController : ApiControllerBase
     {
         ValidateInputs(inputDto);
 
-        var transaction = await CreateBalanceTransaction(Account.MasterId, Account.B2BId, inputDto.Symbol, -inputDto.Value, cancellationToken);
+        var transaction = await CreateBalanceTransaction(Account.MasterId, Account.B2BId, inputDto.Symbol, -inputDto.Value, "withdraw", cancellationToken);
         transaction.CreatedBy = GetUserIdFromHeader();
 
         await _transactionService.Insert(transaction, cancellationToken);
@@ -67,21 +67,21 @@ public class BalanceController : ApiControllerBase
         return true;
     }
 
-    private async Task<TransactionEntity> CreateBalanceTransaction(int fromAccountId, int toAccountId, string symbol, decimal differenceAmount, CancellationToken cancellationToken)
+    private async Task<TransactionEntity> CreateBalanceTransaction(int fromAccountId, int toAccountId, string symbol, decimal differenceAmount, string source, CancellationToken cancellationToken)
     {
         var currencyReferencePrice = await _priceService.CalculateReferencePrice(symbol, cancellationToken);
 
         TransactionEntity transaction;
 
         if (differenceAmount > 0)
-            transaction = _transactionService.GetCreditTransaction(fromAccountId, toAccountId, symbol, currencyReferencePrice, differenceAmount);
+            transaction = _transactionService.GetCreditTransaction(fromAccountId, toAccountId, symbol, currencyReferencePrice, differenceAmount, source);
         else
-            transaction = _transactionService.GetDebitTransaction(fromAccountId, toAccountId, symbol, currencyReferencePrice, differenceAmount);
+            transaction = _transactionService.GetDebitTransaction(fromAccountId, toAccountId, symbol, currencyReferencePrice, differenceAmount, source);
 
         return transaction;
     }
 
-    private void ValidateInputs(BalanceInputDto inputDto)
+    private static void ValidateInputs(BalanceInputDto inputDto)
     {
         if (inputDto.Value <= 0)
             throw new BadRequestException("Property 'Value' should be greater than 0");

@@ -9,4 +9,5 @@ public class TransactionEntity : BaseEntity
     public string? Symbol { get; set; }
     public decimal Amount { get; set; }
     public decimal TotalValue { get; set; }
+    public string Source { get; set; }
 }

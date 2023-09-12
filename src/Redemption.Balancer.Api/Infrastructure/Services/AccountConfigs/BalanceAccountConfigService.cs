@@ -68,7 +68,11 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
                 }
             };
 
-            await _stexchangeService.UpdateBalance(trackingId, accountEntity.StemeraldUserId, symbol, "balancer", parameterTransaction.Id, PriceExtensions.Denormalize(differenceBalance, currency.NormalizationScale), businessDetail, cancellationToken);
+            var denormalPrice = PriceExtensions.Denormalize(differenceBalance, currency.NormalizationScale);
+
+            _logger.LogWarning("UpdateBalance in insert config | symbol:{symbol}, StemeraldUserId:{StemeraldUserId}, denormalPrice:{denormalPrice}, detail:{businessDetail}", symbol, accountEntity.StemeraldUserId, denormalPrice, businessDetail);
+
+            //await _stexchangeService.UpdateBalance(trackingId, accountEntity.StemeraldUserId, symbol, "balancer", parameterTransaction.Id, denormalPrice, businessDetail, cancellationToken);
 
             await transaction.CommitAsync(cancellationToken);
         }
@@ -114,7 +118,11 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
                 }
             };
 
-            await _stexchangeService.UpdateBalance(trackingId, accountEntity.StemeraldUserId, symbol, "balancer", parameterTransaction.Id, PriceExtensions.Denormalize(differenceBalance, currency.NormalizationScale), businessDetail, cancellationToken);
+            var denormalPrice = PriceExtensions.Denormalize(differenceBalance, currency.NormalizationScale);
+
+            _logger.LogWarning("UpdateBalance in update config | symbol:{symbol}, StemeraldUserId:{StemeraldUserId}, denormalPrice:{denormalPrice}, detail:{businessDetail}", symbol, accountEntity.StemeraldUserId, denormalPrice, businessDetail);
+
+            //await _stexchangeService.UpdateBalance(trackingId, accountEntity.StemeraldUserId, symbol, "balancer", parameterTransaction.Id, denormalPrice, businessDetail, cancellationToken);
 
             await transaction.CommitAsync(cancellationToken);
         }
@@ -156,7 +164,11 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
                 }
             };
 
-            await _stexchangeService.UpdateBalance(trackingId, accountEntity.StemeraldUserId, accountConfigEntity.Symbol!, "balancer", parameterTransaction.Id, PriceExtensions.Denormalize(differenceBalance, currency.NormalizationScale), businessDetail, cancellationToken);
+            var denormalPrice = PriceExtensions.Denormalize(differenceBalance, currency.NormalizationScale);
+
+            _logger.LogWarning("UpdateBalance in delete config | symbol:{symbol}, StemeraldUserId:{StemeraldUserId}, denormalPrice:{denormalPrice}, detail:{businessDetail}", accountConfigEntity.Symbol!, accountEntity.StemeraldUserId, denormalPrice, businessDetail);
+
+            //await _stexchangeService.UpdateBalance(trackingId, accountEntity.StemeraldUserId, accountConfigEntity.Symbol!, "balancer", parameterTransaction.Id, PriceExtensions.Denormalize(differenceBalance, currency.NormalizationScale), businessDetail, cancellationToken);
 
             await transaction.CommitAsync(cancellationToken);
         }

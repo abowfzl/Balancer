@@ -96,7 +96,11 @@ public class BotBalancer : BaseBalancer
                                 }
                             };
 
-                            await _stexchangeService.UpdateBalance(trackingId, account.StemeraldUserId, accountConfig.Symbol!, "balancer", parameterTransaction.Id, PriceExtensions.Denormalize(-differenceBalance, currency.NormalizationScale), businessDetail, cancellationToken);
+                            var denormalPrice = PriceExtensions.Denormalize(differenceBalance, currency.NormalizationScale);
+
+                            _logger.LogWarning("UpdateBalance in Balancer | symbol:{symbol}, StemeraldUserId:{StemeraldUserId}, denormalPrice:{denormalPrice}, detail:{businessDetail}", accountConfig.Symbol!, account.StemeraldUserId, denormalPrice, businessDetail);
+
+                            //await _stexchangeService.UpdateBalance(trackingId, account.StemeraldUserId, accountConfig.Symbol!, "balancer", parameterTransaction.Id, denormalPrice, businessDetail, cancellationToken);
                         }
                         else
                             _logger.LogInformation("Account:{accountName} balance for symbol:{accountConfigSymbol} isn't changed", account.Name, accountConfig.Symbol);

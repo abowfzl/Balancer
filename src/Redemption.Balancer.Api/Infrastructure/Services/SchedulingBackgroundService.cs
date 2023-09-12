@@ -16,25 +16,30 @@ public class SchedulingBackgroundService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        try
+        while (cancellationToken.IsCancellationRequested is false)
         {
-            _logger.LogInformation("{SchedulingBackground} BackgroundService Started", nameof(SchedulingBackgroundService));
-
-            using (IServiceScope scope = _serviceScopeFactory.CreateScope())
+            try
             {
-                var balancer = scope.ServiceProvider.GetRequiredService<IBalancer>();
+                await Task.Delay(5000, cancellationToken);
 
-                var workerService = scope.ServiceProvider.GetRequiredService<IWorkerService>();
+                _logger.LogInformation("{SchedulingBackground} BackgroundService Started", nameof(SchedulingBackgroundService));
 
-                var worker = await workerService.GetByName(nameof(BotBalancer), cancellationToken);
+                using (IServiceScope scope = _serviceScopeFactory.CreateScope())
+                {
+                    var balancer = scope.ServiceProvider.GetRequiredService<IBalancer>();
 
-                await balancer.Run(worker, cancellationToken);
+                    var workerService = scope.ServiceProvider.GetRequiredService<IWorkerService>();
 
+                    var worker = await workerService.GetByName(nameof(BotBalancer), cancellationToken);
+
+                    await balancer.Run(worker, cancellationToken);
+
+                }
             }
-        }
-        catch (Exception exception)
-        {
-            _logger.LogError(exception, "Exception in {SchedulingBackground} when ExecutingAsync. message:{exceptionMessage}. CatchBlock:", nameof(SchedulingBackgroundService), exception.Message);
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Exception in {SchedulingBackground} when ExecutingAsync. message:{exceptionMessage}. CatchBlock:", nameof(SchedulingBackgroundService), exception.Message);
+            }
         }
     }
 }

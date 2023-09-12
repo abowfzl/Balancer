@@ -12,5 +12,7 @@ public interface ITransactionService
 
     TransactionEntity GetCreditTransaction(int fromAccountId, int toAccountId, string symbol, decimal referencePrice, decimal differenceAmount, string source);
 
-    Task<IList<TransactionEntity>> GetAccountTransactions(int accountId, CancellationToken cancellationToken, DateTime? startDate = null, DateTime? endDate = null);
+    ValueTask<decimal> CalculateAccountIRRTransactions(int accountId, CancellationToken cancellationToken, DateTime? startDate = null, DateTime? endDate = null);
+
+    ValueTask<decimal> CalculateAccountUSDTTransactions(int accountId, CancellationToken cancellationToken, DateTime? startDate = null, DateTime? endDate = null);
 }

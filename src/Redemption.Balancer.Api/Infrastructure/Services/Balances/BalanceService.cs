@@ -21,10 +21,9 @@ public class BalanceService : IBalanceService
 
         var balanceStatus = new BalanceStatus();
 
-        var transactions = await _transactionService.GetAccountTransactions(accountId, cancellationToken, request.StartDate, request.EndDate);
+        var irrBalanceValue = await _transactionService.CalculateAccountIRRTransactions(accountId, cancellationToken, request.StartDate, request.EndDate);
 
-        var irrBalanceValue = CalculateIRRBalance(accountId, transactions);
-        var usdtBalanceValue = CalculateUSDTValueBalance(accountId, transactions);
+        var usdtBalanceValue = await _transactionService.CalculateAccountUSDTTransactions(accountId, cancellationToken, request.StartDate, request.EndDate);
 
         balanceStatus.USDTGained = usdtBalanceValue + ConvertIRRtoUSDT(irrBalanceValue, request.B2BIRRRate);
         balanceStatus.IRRGained = ConvertUSDTtoIRR(usdtBalanceValue, request.B2BIRRRate) + irrBalanceValue;
@@ -46,38 +45,6 @@ public class BalanceService : IBalanceService
     private static decimal ConvertUSDTtoIRR(decimal usdtValue, decimal irrRate)
     {
         return usdtValue * irrRate;
-    }
-
-    private static decimal CalculateUSDTValueBalance(int accountId, IList<TransactionEntity> transactions)
-    {
-        decimal totalUSDT = 0;
-
-        foreach (var otherTransaction in transactions.Where(t => t.Symbol != "IRR"))
-        {
-            if (otherTransaction.FromAccountId == accountId)
-                totalUSDT -= otherTransaction.TotalValue;
-
-            if (otherTransaction.ToAccountId == accountId)
-                totalUSDT += otherTransaction.TotalValue;
-        }
-
-        return totalUSDT;
-    }
-
-    private static decimal CalculateIRRBalance(int accountId, IList<TransactionEntity> transactions)
-    {
-        decimal totalIRR = 0;
-
-        foreach (var irrTransaction in transactions.Where(t => t.Symbol == "IRR").ToList())
-        {
-            if (irrTransaction.FromAccountId == accountId)
-                totalIRR -= irrTransaction.Amount;
-
-            if (irrTransaction.ToAccountId == accountId)
-                totalIRR += irrTransaction.Amount;
-        }
-
-        return totalIRR;
     }
 
     private static void ValidateRequest(BalanceStatusInputDto request)

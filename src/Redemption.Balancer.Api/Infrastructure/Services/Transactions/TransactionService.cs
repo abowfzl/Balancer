@@ -71,7 +71,7 @@ public class TransactionService : ITransactionService
         };
     }
 
-    public async Task<IList<TransactionEntity>> GetAccountTransactions(int accountId, CancellationToken cancellationToken, DateTime? startDate = null, DateTime? endDate = null)
+    public async ValueTask<decimal> CalculateAccountIRRTransactions(int accountId, CancellationToken cancellationToken, DateTime? startDate = null, DateTime? endDate = null)
     {
         var query = _dbContext.Transactions.AsQueryable();
 
@@ -81,8 +81,29 @@ public class TransactionService : ITransactionService
         if (endDate.HasValue)
             query = query.Where(s => s.CreatedAt <= _dateTimeProvider.SetKindUtc(endDate.Value));
 
-        query = query.Where(q => q.FromAccountId == accountId || q.ToAccountId == accountId);
+        var credit = await query.Where(q => q.FromAccountId == accountId && q.Symbol == "IRR").SumAsync(q => q.Amount, cancellationToken);
+        var debit = await query.Where(q => q.ToAccountId == accountId && q.Symbol == "IRR").SumAsync(q => q.Amount, cancellationToken);
 
-        return await query.ToListAsync(cancellationToken);
+        var total = debit - credit;
+
+        return total;
+    }
+
+    public async ValueTask<decimal> CalculateAccountUSDTTransactions(int accountId, CancellationToken cancellationToken, DateTime? startDate = null, DateTime? endDate = null)
+    {
+        var query = _dbContext.Transactions.AsQueryable();
+
+        if (startDate.HasValue)
+            query = query.Where(s => s.CreatedAt >= _dateTimeProvider.SetKindUtc(startDate.Value));
+
+        if (endDate.HasValue)
+            query = query.Where(s => s.CreatedAt <= _dateTimeProvider.SetKindUtc(endDate.Value));
+
+        var credit = await query.Where(q => q.FromAccountId == accountId && q.Symbol != "IRR").SumAsync(q => q.TotalValue, cancellationToken);
+        var debit = await query.Where(q => q.ToAccountId == accountId && q.Symbol != "IRR").SumAsync(q => q.TotalValue, cancellationToken);
+
+        var total = debit - credit;
+
+        return total;
     }
 }

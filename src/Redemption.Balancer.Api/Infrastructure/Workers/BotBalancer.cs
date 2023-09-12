@@ -70,7 +70,7 @@ public class BotBalancer : BaseBalancer
 
                         var currency = await _currencyService.GetBySymbol(accountConfig.Symbol!, cancellationToken);
 
-                        var balanceValue = PriceExtensions.Normalize(decimal.Parse(symbolBalance!.Available), currency.NormalizationScale);
+                        var balanceValue = PriceExtensions.Normalize(decimal.Parse(symbolBalance!.Available) + decimal.Parse(symbolBalance.Freeze), currency.NormalizationScale);
 
                         var differenceBalance = balanceValue - accountConfig.Value;
 

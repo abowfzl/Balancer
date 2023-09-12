@@ -44,7 +44,7 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
 
             var currency = await _currencyService.GetBySymbol(symbol, cancellationToken);
 
-            var balanceValue = PriceExtensions.Normalize(decimal.Parse(balance.Value!.Available), currency.NormalizationScale);
+            var balanceValue = PriceExtensions.Normalize(decimal.Parse(balance.Value!.Available) + decimal.Parse(balance.Value.Freeze), currency.NormalizationScale);
 
             var differenceBalance = newAccountConfigEntity.Value - balanceValue;
 

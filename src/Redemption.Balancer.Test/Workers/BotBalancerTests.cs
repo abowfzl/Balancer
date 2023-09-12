@@ -117,8 +117,8 @@ public class BotBalancerTests
 
         var balances = new Dictionary<int, Dictionary<string, BalanceQueryResponse>>()
         {
-            { 1000, new Dictionary<string, BalanceQueryResponse>(){ { "XRP",new BalanceQueryResponse() { Available = "0.1500",Freeze= "0.0600"} },{ "IRR",new BalanceQueryResponse() { Available= "0.01000000m",Freeze = "0.50000000" } } } } ,
-            { 1001, new Dictionary<string, BalanceQueryResponse>(){ { "BCH",new BalanceQueryResponse() { Available = "0.025",Freeze = "0" } },{ "IRR",new BalanceQueryResponse() { Available = "0.01000000", Freeze = "0" } } } }
+            { 1000, new Dictionary<string, BalanceQueryResponse>(){ { "XRP",new BalanceQueryResponse() { Available = "0.1500",Freeze= "0.0600"} },{ "IRR",new BalanceQueryResponse() { Available= "0.01000000",Freeze = "0" } } } } ,
+            { 1001, new Dictionary<string, BalanceQueryResponse>(){ { "BCH",new BalanceQueryResponse() { Available = "0.025",Freeze = "0.0005" } },{ "IRR",new BalanceQueryResponse() { Available = "0.01000000", Freeze = "0" } } } }
         };
 
 
@@ -144,18 +144,18 @@ public class BotBalancerTests
         {
             Id = 2000,
             Symbol = "XRP",
-            FromAccountId = Account.MasterId,
-            ToAccountId = 10,
-            Amount = 500,
-            TotalValue = 248.5m
+            FromAccountId = 10,
+            ToAccountId = Account.MasterId,
+            Amount = 100,
+            TotalValue = 49.7m
         };
         var xrpCreditTransaction = new TransactionEntity()
         {
             Symbol = "XRP",
-            FromAccountId = 10,
-            ToAccountId = Account.UserId,
-            Amount = 500,
-            TotalValue = 248.5m
+            FromAccountId = Account.UserId,
+            ToAccountId = 10,
+            Amount = 100,
+            TotalValue = 49.7m
         };
 
         var bchDebitTransaction = new TransactionEntity()
@@ -164,8 +164,8 @@ public class BotBalancerTests
             Symbol = "BCH",
             FromAccountId = 11,
             ToAccountId = Account.MasterId,
-            Amount = 0.24m,
-            TotalValue = 45.0096m
+            Amount = 0.245m,
+            TotalValue = 45.9473m
         };
 
         var bchCreditTransaction = new TransactionEntity()
@@ -173,8 +173,8 @@ public class BotBalancerTests
             Symbol = "BCH",
             FromAccountId = Account.UserId,
             ToAccountId = 11,
-            Amount = 0.24m,
-            TotalValue = 45.0096m
+            Amount = 0.245m,
+            TotalValue = 45.9473m
         };
 
         var irrDebitTransaction = new TransactionEntity()
@@ -196,11 +196,11 @@ public class BotBalancerTests
             TotalValue = 79.50279461700032m
         };
 
-        _transactionService.Setup(p => p.GetCreditTransaction(Account.MasterId, 10, "XRP", 0.497m, 500, "balancer")).Returns(xrpDebitTransaction);
-        _transactionService.Setup(p => p.GetDebitTransaction(10, Account.UserId, "XRP", 0.497m, -500, "balancer")).Returns(xrpCreditTransaction);
+        _transactionService.Setup(p => p.GetDebitTransaction(10, Account.MasterId, "XRP", 0.497m, -100, "balancer")).Returns(xrpDebitTransaction);
+        _transactionService.Setup(p => p.GetCreditTransaction(Account.UserId, 10, "XRP", 0.497m, 100, "balancer")).Returns(xrpCreditTransaction);
 
-        _transactionService.Setup(p => p.GetCreditTransaction(Account.UserId, 11, "BCH", 187.54m, 0.24m, "balancer")).Returns(bchCreditTransaction);
-        _transactionService.Setup(p => p.GetDebitTransaction(11, Account.MasterId, "BCH", 187.54m, -0.24m, "balancer")).Returns(bchDebitTransaction);
+        _transactionService.Setup(p => p.GetCreditTransaction(Account.UserId, 11, "BCH", 187.54m, 0.245m, "balancer")).Returns(bchCreditTransaction);
+        _transactionService.Setup(p => p.GetDebitTransaction(11, Account.MasterId, "BCH", 187.54m, -0.245m, "balancer")).Returns(bchDebitTransaction);
 
         _transactionService.Setup(p => p.GetCreditTransaction(Account.MasterId, 11, "IRR", 50312.69679600254m, 4000000, "balancer")).Returns(irrCreditTransaction);
         _transactionService.Setup(p => p.GetDebitTransaction(11, Account.UserId, "IRR", 50312.69679600254m, -4000000, "balancer")).Returns(irrDebitTransaction);

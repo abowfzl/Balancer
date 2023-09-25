@@ -61,6 +61,8 @@ public class BotBalancer : BaseBalancer
 
                 foreach (var accountConfig in accountConfigs)
                 {
+                    _logger.LogInformation("Account:{accountName}, Symbol:{accountName} balance start", account.Name, accountConfig.Symbol);
+
                     using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
                     try
                     {
@@ -68,14 +70,22 @@ public class BotBalancer : BaseBalancer
 
                         _ = accountBalances.TryGetValue(accountConfig.Symbol!, out var symbolBalance);
 
+                        var deNormalBalance = decimal.Parse(symbolBalance!.Available) + decimal.Parse(symbolBalance.Freeze);
+
+                        _logger.LogInformation("Account:{accountName}, Symbol:{accountName} | deNormalBalance:{deNormalBalance}", account.Name, accountConfig.Symbol, deNormalBalance);
+
                         var currency = await _currencyService.GetBySymbol(accountConfig.Symbol!, cancellationToken);
 
-                        var balanceValue = PriceExtensions.Normalize(decimal.Parse(symbolBalance!.Available) + decimal.Parse(symbolBalance.Freeze), currency.NormalizationScale);
+                        var balanceValue = PriceExtensions.Normalize(deNormalBalance, currency.NormalizationScale);
+
+                        _logger.LogInformation("Account:{accountName}, Symbol:{accountName} | config:{configValue}, balanceValue:{balanceValue}", account.Name, accountConfig.Symbol, accountConfig.Value, balanceValue);
 
                         var differenceBalance = balanceValue - accountConfig.Value;
 
                         if (differenceBalance != 0)
                         {
+                            _logger.LogInformation("AccountId:{accountId}, Symbol:{accountName} | differenceBalance:{differenceBalance}", accountConfig.AccountId, accountConfig.Symbol, differenceBalance);
+
                             var transactions = await CreateAccountTransactions(accountConfig.AccountId, accountConfig.Symbol!, differenceBalance, "balancer", cancellationToken);
 
                             await _transactionService.Insert(transactions, cancellationToken);

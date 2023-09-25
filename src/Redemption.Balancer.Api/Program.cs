@@ -190,6 +190,6 @@ ElasticsearchSinkOptions ConfigureElasticSink(IConfigurationRoot configuration, 
     return new ElasticsearchSinkOptions(new Uri(configuration["ElasticConfiguration:Uri"]!))
     {
         AutoRegisterTemplate = true,
-        IndexFormat = $"{Assembly.GetExecutingAssembly().GetName().Name?.ToLower().Replace(".", "-")}-{environment?.ToLower().Replace(".", "-")}-2-" + "{0:YYYY-MM-dd}"
+        IndexFormat = $"{Assembly.GetExecutingAssembly().GetName().Name?.ToLower().Replace(".", "-")}-{environment?.ToLower().Replace(".", "-")}-" + "{0:yyyy-MM-dd}"
     };
 }

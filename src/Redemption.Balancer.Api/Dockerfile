@@ -8,6 +8,9 @@ WORKDIR /src
 
 COPY . .
 
+RUN apt-get update && apt-get --yes install curl
+RUN curl https://buget.exbito.com/v3/index.json -v
+
 RUN dotnet restore "Redemption.Balancer.Api.csproj" --configfile nuget.config
 
 RUN dotnet build "Redemption.Balancer.Api.csproj" -c Release -o /app
@@ -17,9 +20,6 @@ RUN dotnet publish "Redemption.Balancer.Api.csproj" -c Release -o /app
 
 FROM base AS final
 WORKDIR /app
-
-RUN apt-get update 
-RUN apt-get --yes install curl
 
 COPY --from=publish /app .
 ENTRYPOINT ["dotnet", "Redemption.Balancer.Api.dll"]

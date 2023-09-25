@@ -5,8 +5,7 @@ services:
     image: "registry.gitlab.com/stacrypt/redemtion/balancer:latest"
     container_name: balancer_api
     depends_on:
-      balancer_db:
-        condition: service_healthy
+     - balancer_db
     networks:
       stacloud_dmz:
         ipv4_address: 192.168.18.26
@@ -22,7 +21,10 @@ services:
     env_file:
       - .env
     restart: always
-    mem_limit: 2g
+    deploy:
+      resources:
+        limits:
+          memory: 1g
 
    balancer_db:
     image: postgres

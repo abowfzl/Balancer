@@ -10,10 +10,6 @@ COPY . .
 
 RUN apt-get update && apt-get --yes install curl && update-ca-certificates
 
-RUN ping buget.exbito.com -c 4
-RUN curl https://buget.exbito.com -v
-RUN curl https://buget.exbito.com/v3/index.json -v
-
 RUN dotnet restore "Redemption.Balancer.Api.csproj" --configfile nuget.config
 
 RUN dotnet build "Redemption.Balancer.Api.csproj" -c Release -o /app

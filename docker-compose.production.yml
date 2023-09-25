@@ -2,14 +2,14 @@ version: '3.7'
 
 services:
    balancer_api:
-    image: "registry.gitlab.com/stacrypt/redemtion/balancer:${IMAGE_TAG}"
+    image: "registry.gitlab.com/stacrypt/redemtion/balancer:latest"
     container_name: balancer_api
     depends_on:
       balancer_db:
         condition: service_healthy
     networks:
       stacloud_dmz:
-        ipv4_address: 192.168.25.32
+        ipv4_address: 192.168.18.26
     healthcheck:
       test: curl --silent --fail http://localhost/health || exit 1
       interval: 30s
@@ -18,7 +18,7 @@ services:
       timeout: 10s      
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__PostgreSQL
+      - ConnectionStrings__PostgreSQL=Host=balancer_db:5432;Database=Balancer;Username=balancer;Password=P@SSW0rd;SSL Mode=Disable;
     env_file:
       - .env
     restart: always
@@ -43,7 +43,7 @@ services:
       retries: 3
     networks:
       stacloud_dmz:
-        ipv4_address: 192.168.25.33
+        ipv4_address: 192.168.18.25
 
 networks:
  stacloud_dmz:

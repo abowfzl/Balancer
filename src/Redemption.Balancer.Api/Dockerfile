@@ -8,7 +8,7 @@ WORKDIR /src
 
 COPY . .
 
-RUN apt-get update && apt-get --yes install curl
+RUN apt-get update && apt-get --yes install curl && update-ca-certificates
 RUN curl https://buget.exbito.com/v3/index.json -v
 
 RUN dotnet restore "Redemption.Balancer.Api.csproj" --configfile nuget.config

@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using Redemption.Balancer.Api.Application.Common.Contracts;
 using Redemption.Balancer.Api.Application.Common.Models;
 using Redemption.Balancer.Api.Constants;
@@ -61,8 +62,6 @@ public class BotBalancer : BaseBalancer
 
                 foreach (var accountConfig in accountConfigs)
                 {
-                    _logger.LogInformation("Account:{accountName}, Symbol:{accountName} balance start", account.Name, accountConfig.Symbol);
-
                     using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
                     try
                     {
@@ -78,7 +77,7 @@ public class BotBalancer : BaseBalancer
 
                         var balanceValue = PriceExtensions.Normalize(deNormalBalance, currency.NormalizationScale);
 
-                        _logger.LogInformation("Account:{accountName}, Symbol:{accountName} | config:{configValue}, balanceValue:{balanceValue}", account.Name, accountConfig.Symbol, accountConfig.Value, balanceValue);
+                        _logger.LogInformation("Account:{accountName}, Symbol:{accountName} | configValue:{configValue}, balanceValue:{balanceValue}", account.Name, accountConfig.Symbol, accountConfig.Value, balanceValue);
 
                         var differenceBalance = balanceValue - accountConfig.Value;
 
@@ -108,7 +107,9 @@ public class BotBalancer : BaseBalancer
 
                             var denormalPrice = PriceExtensions.Denormalize(differenceBalance, currency.NormalizationScale);
 
-                            _logger.LogWarning("UpdateBalance in Balancer | symbol:{symbol}, StemeraldUserId:{StemeraldUserId}, denormalPrice:{denormalPrice}, detail:{businessDetail}", accountConfig.Symbol!, account.StemeraldUserId, denormalPrice, businessDetail);
+                            _logger.LogInformation("AccountId:{accountId}, Symbol:{accountName} | differenceDeNormalBalance:{denormalPrice}", accountConfig.AccountId, accountConfig.Symbol, denormalPrice);
+
+                            _logger.LogWarning("UpdateBalance in Balancer | symbol:{symbol}, StemeraldUserId:{StemeraldUserId}, denormalPrice:{denormalPrice}, detail:{businessDetail}", accountConfig.Symbol!, account.StemeraldUserId, denormalPrice, JsonConvert.SerializeObject(businessDetail));
 
                             //await _stexchangeService.UpdateBalance(trackingId, account.StemeraldUserId, accountConfig.Symbol!, "balancer", parameterTransaction.Id, denormalPrice, businessDetail, cancellationToken);
                         }

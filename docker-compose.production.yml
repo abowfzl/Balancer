@@ -21,10 +21,6 @@ services:
     env_file:
       - .env
     restart: always
-    deploy:
-      resources:
-        limits:
-          memory: 1g
 
    balancer_db:
     image: postgres

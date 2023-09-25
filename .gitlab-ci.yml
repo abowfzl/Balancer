@@ -67,7 +67,7 @@ deploy:
   script:
     - sed "s~${CI_REGISTRY_IMAGE}:latest~${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}~" docker-compose.production.yml > docker-compose.yml
     - scp -P $SERVER_PORT docker-compose.yml root@$SERVER_IP:~/redemption/balancer/docker-compose.yml
-    - ssh root@$SERVER_IP -p $SERVER_PORT "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY && cd balancer/ && docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA && IMAGE_TAG=$CI_COMMIT_SHA docker-compose up --force-recreate --build -d && docker logout $CI_REGISTRY"
+    - ssh root@$SERVER_IP -p $SERVER_PORT "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY && cd redemption/balancer/ && docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA && IMAGE_TAG=$CI_COMMIT_SHA docker-compose up --force-recreate --build -d && docker logout $CI_REGISTRY"
   only:
     - /^V\d+\.\d+\.\d+$/
   except:

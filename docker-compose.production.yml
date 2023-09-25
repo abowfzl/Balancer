@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
    balancer_api:
-    image: "registry.gitlab.com/stacrypt/redemtion/balancer:latest"
+    image: "registry.gitlab.com/stacrypt/redemption/balancer:latest"
     container_name: balancer_api
     depends_on:
      - balancer_db

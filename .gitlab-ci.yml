@@ -1,6 +1,5 @@
 services:
-  - name: docker:dind
-    alias: dockerhost
+  - docker:19.03.12-dind
 
 stages:
   - test
@@ -22,8 +21,8 @@ test:
 build:
   stage: build
   variables:
-    DOCKER_HOST: tcp://dockerhost:2375
-  image: docker:dind
+    DOCKER_HOST: tcp://docker:2376
+  image: docker:19.03.12-dind
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
@@ -37,8 +36,8 @@ build:
 build-stage:
   stage: build
   variables:
-    DOCKER_HOST: tcp://dockerhost:2375
-  image: docker:dind
+    DOCKER_HOST: tcp://docker:2376
+  image: docker:19.03.12-dind
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:

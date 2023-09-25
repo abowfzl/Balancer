@@ -28,6 +28,9 @@ build:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - ping github.com -c 4
+    - ping digikala.com -c 4
+    - ping wallex.ir -c 4
+    - ping bmi.ir -c 4
     - ping exbito.com -c 4
     - curl https://buget.exbito.com/v3/index.json -v
     - curl https://buget.exbito.com -v

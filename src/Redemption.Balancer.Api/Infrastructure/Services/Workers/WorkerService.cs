@@ -50,7 +50,13 @@ public class WorkerService : IWorkerService
     {
         var workerEntity = await _dbContext.Workers.Where(o => o.Name == name).FirstOrDefaultAsync(cancellationToken);
 
-        return workerEntity ?? throw new EntityNotFoundException($"No worker found with name:{name}");
+        if (workerEntity is null)
+            throw new EntityNotFoundException($"No worker found with name:{name}");
+
+        // reload entry to fetch data from db values
+        await _dbContext.Workers.Entry(workerEntity).ReloadAsync(cancellationToken);
+
+        return workerEntity;
     }
 
     public async Task Insert(WorkerEntity workerEntity, CancellationToken cancellationToken)

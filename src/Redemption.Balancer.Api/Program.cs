@@ -123,7 +123,6 @@ void RegisterServices()
 
     var exchangeConfig = builder.Configuration.GetSection("ExchangeConfig").Get<ExchangeConfig>();
     builder.Services.AddStexchangeClient(exchangeConfig!.ClientUrl.TrimEnd('/'));
-    Console.WriteLine(exchangeConfig!.ClientUrl.TrimEnd('/'));
 }
 
 void BindConfiguration()

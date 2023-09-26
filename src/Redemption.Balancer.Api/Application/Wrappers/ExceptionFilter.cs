@@ -46,7 +46,7 @@ public class ExceptionFilter : IAsyncExceptionFilter
 
     private static void CreateDetailsFromException(Exception exception, StringBuilder detailBuilder)
     {
-        detailBuilder.AppendLine($"{exception.GetType().Name}:{exception.Message}");
+        detailBuilder.AppendLine($"EXCEPTION DETAIL:{exception.GetType().Name}:{exception.Message}");
 
         if (string.IsNullOrEmpty(exception.StackTrace) is false)
             detailBuilder.AppendLine($"STACK TRACE: {exception.StackTrace}");

@@ -27,6 +27,8 @@ public abstract class BaseBalancer : IBalancer
             {
                 worker = await _workerService.GetByName(worker.Name!, cancellationToken);
 
+                _logger.LogInformation("Worker:{workerName} wait for Interval:{interval}", worker.Name, worker.Interval);
+
                 await Task.Delay(TimeSpan.FromSeconds(worker.Interval), cancellationToken);
 
                 if (await _workerService.IsWorkerEnabled(worker, cancellationToken) is false)
@@ -37,7 +39,7 @@ public abstract class BaseBalancer : IBalancer
 
                 _logger.LogInformation("Hello from Worker:{workerName}", worker.Name);
 
-                // ToDo: better solution when exception happened or the time isn;t reach!
+                // ToDo: better solution when exception happened or the time isn't reach!
                 if (DateTime.UtcNow >= worker.CompletedAt + TimeSpan.FromSeconds(worker.Interval) || worker.CompletedAt is null)
                 {
                     if (await _workerService.IsWorkerRunning(worker, cancellationToken))
@@ -66,7 +68,8 @@ public abstract class BaseBalancer : IBalancer
 
                     _logger.LogInformation("Worker:{workerName} loop completed", worker.Name);
                 }
-
+                else 
+                    _logger.LogWarning("Worker:{workerName} time isn't reach to start. wait again for interval", worker.Name);
             }
             catch (Exception exception)
             {

@@ -33,7 +33,6 @@ public class SchedulingBackgroundService : BackgroundService
                     var worker = await workerService.GetByName(nameof(BotBalancer), cancellationToken);
 
                     await balancer.Run(worker, cancellationToken);
-
                 }
             }
             catch (Exception exception)

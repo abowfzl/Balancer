@@ -27,4 +27,16 @@ public class BasicClient : BaseClient, IBasicClient
 
         return currencyResponse!;
     }
+
+    public async Task<IList<CurrencyResponse>> GetCurrencies(CancellationToken cancellationToken)
+    {
+        var requestResponse = await _httpClient.GetAsync(_basicConfig.GetAllCurrenciesEndPoint, cancellationToken);
+
+        var apiResult = await GetResponse<BaseBasicResponse>(nameof(BasicClient), requestResponse);
+
+        var pagedListCurrenciesResponse = JsonConvert.DeserializeObject<PagedListResponse<CurrencyResponse>>(apiResult.Result.ToString());
+
+        return pagedListCurrenciesResponse.Items;
+
+    }
 }

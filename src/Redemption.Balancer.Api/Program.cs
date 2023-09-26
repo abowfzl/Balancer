@@ -119,6 +119,7 @@ void RegisterServices()
         builder.Services.AddTransient(typeof(IBalancer), t);
     });
 
+    builder.Services.AddMemoryCache();
     builder.Services.AddHostedService<SchedulingBackgroundService>();
 
     var exchangeConfig = builder.Configuration.GetSection("ExchangeConfig").Get<ExchangeConfig>();

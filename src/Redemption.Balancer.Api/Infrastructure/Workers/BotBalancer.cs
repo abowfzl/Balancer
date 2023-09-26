@@ -45,6 +45,8 @@ public class BotBalancer : BaseBalancer
 
         var allAccountConfigs = await _accountConfigService.GetAll(cancellationToken);
 
+        var allCurrencies = await _currencyService.GetAll(cancellationToken);
+
         foreach (var account in allAccounts)
         {
             try
@@ -73,7 +75,9 @@ public class BotBalancer : BaseBalancer
 
                         _logger.LogInformation("Account:{accountName}, Symbol:{symbol} | denormalTotalBalance:{denormalTotalBalance}", account.Name, accountConfig.Symbol, deormalTotalBalance);
 
-                        var currency = await _currencyService.GetBySymbol(accountConfig.Symbol!, cancellationToken);
+                        var currency = allCurrencies.FirstOrDefault(s => s.Symbol == accountConfig.Symbol);
+
+                        currency ??= await _currencyService.GetBySymbol(accountConfig.Symbol!, cancellationToken);
 
                         var totalBalance = PriceExtensions.Normalize(deormalTotalBalance, currency.NormalizationScale);
 

@@ -13,6 +13,7 @@ public static class WorkerConfigurations
 
             entity.Property(e => e.Name).HasMaxLength(16);
 
+            entity.HasIndex(e=>e.Name).IsUnique();
         });
     }
 }

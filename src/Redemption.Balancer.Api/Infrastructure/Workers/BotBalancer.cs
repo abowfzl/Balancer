@@ -73,8 +73,6 @@ public class BotBalancer : BaseBalancer
 
                         var deormalTotalBalance = decimal.Parse(symbolBalance!.Available) + decimal.Parse(symbolBalance.Freeze);
 
-                        _logger.LogInformation("Account:{accountName}, Symbol:{symbol} | denormalTotalBalance:{denormalTotalBalance}", account.Name, accountConfig.Symbol, deormalTotalBalance);
-
                         var currency = allCurrencies?.FirstOrDefault(s => s.Symbol == accountConfig.Symbol);
 
                         currency ??= await _currencyService.GetBySymbol(accountConfig.Symbol!, cancellationToken);
@@ -87,8 +85,6 @@ public class BotBalancer : BaseBalancer
 
                         if (differenceBalance != 0)
                         {
-                            _logger.LogInformation("Account:{accountName}, Symbol:{symbol} | differenceBalance:{differenceBalance}", account.Name, accountConfig.Symbol, differenceBalance);
-
                             var transactions = await CreateAccountTransactions(accountConfig.AccountId, accountConfig.Symbol!, differenceBalance, "balancer", cancellationToken);
 
                             await _transactionService.Insert(transactions, cancellationToken);
@@ -114,11 +110,9 @@ public class BotBalancer : BaseBalancer
                             // have to invert balance change
                             denormalBalanceToChange = -denormalBalanceToChange;
 
-                            _logger.LogInformation("Account:{accountName}, Symbol:{symbol} | denormalBalanceToChange:{denormalBalanceToChange}", account.Name, accountConfig.Symbol, denormalBalanceToChange);
-
                             _logger.LogWarning("UpdateBalance in Balancer | Account:{accountName}, symbol:{symbol}, StemeraldUserId:{StemeraldUserId}, balanceToChange:{balanceToChange}, detail:{businessDetail}", account.Name, accountConfig.Symbol!, account.StemeraldUserId, denormalBalanceToChange, JsonConvert.SerializeObject(businessDetail));
 
-                            //await _stexchangeService.UpdateBalance(trackingId, account.StemeraldUserId, accountConfig.Symbol!, "balancer", parameterTransaction.Id, denormalBalanceToChange, businessDetail, cancellationToken);
+                            await _stexchangeService.UpdateBalance(trackingId, account.StemeraldUserId, accountConfig.Symbol!, "balancer", parameterTransaction.Id, denormalBalanceToChange, businessDetail, cancellationToken);
                         }
                         else
                             _logger.LogInformation("Account:{accountName} balance for symbol:{symbol} isn't changed", account.Name, accountConfig.Symbol);

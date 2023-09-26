@@ -1,4 +1,5 @@
-﻿using Redemption.Balancer.Api.Application.Common.Contracts;
+﻿using Newtonsoft.Json;
+using Redemption.Balancer.Api.Application.Common.Contracts;
 using Redemption.Balancer.Api.Application.Common.Exceptions;
 using Redemption.Balancer.Api.Application.Common.Models;
 using Redemption.Balancer.Api.Constants;
@@ -70,9 +71,9 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
 
             var denormalPrice = PriceExtensions.Denormalize(differenceBalance, currency.NormalizationScale);
 
-            _logger.LogWarning("UpdateBalance in insert config | symbol:{symbol}, StemeraldUserId:{StemeraldUserId}, denormalPrice:{denormalPrice}, detail:{businessDetail}", symbol, accountEntity.StemeraldUserId, denormalPrice, businessDetail);
+            _logger.LogWarning("UpdateBalance in insert config | symbol:{symbol}, StemeraldUserId:{StemeraldUserId}, denormalPrice:{denormalPrice}, detail:{businessDetail}", symbol, accountEntity.StemeraldUserId, denormalPrice, JsonConvert.SerializeObject(businessDetail));
 
-            //await _stexchangeService.UpdateBalance(trackingId, accountEntity.StemeraldUserId, symbol, "balancer", parameterTransaction.Id, denormalPrice, businessDetail, cancellationToken);
+            await _stexchangeService.UpdateBalance(trackingId, accountEntity.StemeraldUserId, symbol, "balancer", parameterTransaction.Id, denormalPrice, businessDetail, cancellationToken);
 
             await transaction.CommitAsync(cancellationToken);
         }
@@ -120,9 +121,9 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
 
             var denormalPrice = PriceExtensions.Denormalize(differenceBalance, currency.NormalizationScale);
 
-            _logger.LogWarning("UpdateBalance in update config | symbol:{symbol}, StemeraldUserId:{StemeraldUserId}, denormalPrice:{denormalPrice}, detail:{businessDetail}", symbol, accountEntity.StemeraldUserId, denormalPrice, businessDetail);
+            _logger.LogWarning("UpdateBalance in update config | symbol:{symbol}, StemeraldUserId:{StemeraldUserId}, denormalPrice:{denormalPrice}, detail:{businessDetail}", symbol, accountEntity.StemeraldUserId, denormalPrice, JsonConvert.SerializeObject(businessDetail));
 
-            //await _stexchangeService.UpdateBalance(trackingId, accountEntity.StemeraldUserId, symbol, "balancer", parameterTransaction.Id, denormalPrice, businessDetail, cancellationToken);
+            await _stexchangeService.UpdateBalance(trackingId, accountEntity.StemeraldUserId, symbol, "balancer", parameterTransaction.Id, denormalPrice, businessDetail, cancellationToken);
 
             await transaction.CommitAsync(cancellationToken);
         }
@@ -166,9 +167,9 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
 
             var denormalPrice = PriceExtensions.Denormalize(differenceBalance, currency.NormalizationScale);
 
-            _logger.LogWarning("UpdateBalance in delete config | symbol:{symbol}, StemeraldUserId:{StemeraldUserId}, denormalPrice:{denormalPrice}, detail:{businessDetail}", accountConfigEntity.Symbol!, accountEntity.StemeraldUserId, denormalPrice, businessDetail);
+            _logger.LogWarning("UpdateBalance in delete config | symbol:{symbol}, StemeraldUserId:{StemeraldUserId}, denormalPrice:{denormalPrice}, detail:{businessDetail}", accountConfigEntity.Symbol!, accountEntity.StemeraldUserId, denormalPrice, JsonConvert.SerializeObject(businessDetail));
 
-            //await _stexchangeService.UpdateBalance(trackingId, accountEntity.StemeraldUserId, accountConfigEntity.Symbol!, "balancer", parameterTransaction.Id, PriceExtensions.Denormalize(differenceBalance, currency.NormalizationScale), businessDetail, cancellationToken);
+            await _stexchangeService.UpdateBalance(trackingId, accountEntity.StemeraldUserId, accountConfigEntity.Symbol!, "balancer", parameterTransaction.Id, PriceExtensions.Denormalize(differenceBalance, currency.NormalizationScale), businessDetail, cancellationToken);
 
             await transaction.CommitAsync(cancellationToken);
         }

@@ -75,7 +75,7 @@ public class BotBalancer : BaseBalancer
 
                         _logger.LogInformation("Account:{accountName}, Symbol:{symbol} | denormalTotalBalance:{denormalTotalBalance}", account.Name, accountConfig.Symbol, deormalTotalBalance);
 
-                        var currency = allCurrencies.FirstOrDefault(s => s.Symbol == accountConfig.Symbol);
+                        var currency = allCurrencies?.FirstOrDefault(s => s.Symbol == accountConfig.Symbol);
 
                         currency ??= await _currencyService.GetBySymbol(accountConfig.Symbol!, cancellationToken);
 

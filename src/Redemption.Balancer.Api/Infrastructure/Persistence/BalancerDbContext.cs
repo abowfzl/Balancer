@@ -25,6 +25,15 @@ public class BalancerDbContext : DbContext
         AccountConfigurations.Configure(modelBuilder);
         TransactionConfigurations.Configure(modelBuilder);
         WorkerConfigurations.Configure(modelBuilder);
+
+        var mutableProperties = modelBuilder.Model.GetEntityTypes()
+                                                       .SelectMany(t => t.GetProperties())
+                                                       .Where(p => p.ClrType == typeof(decimal) || p.ClrType == typeof(decimal?));
+        foreach (var property in mutableProperties)
+        {
+            property.SetPrecision(24);
+            property.SetScale(10);
+        }
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

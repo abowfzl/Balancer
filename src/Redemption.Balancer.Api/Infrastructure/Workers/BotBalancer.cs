@@ -47,8 +47,14 @@ public class BotBalancer : BaseBalancer
 
         var allCurrencies = await _currencyService.GetAll(cancellationToken);
 
+        var attemptsCount = 0;
+
+        var errorsCount = 0;
+
         foreach (var account in allAccounts)
         {
+            attemptsCount++;
+
             try
             {
                 await Task.Delay(500, cancellationToken);
@@ -64,6 +70,8 @@ public class BotBalancer : BaseBalancer
 
                 foreach (var accountConfig in accountConfigs)
                 {
+                    attemptsCount++;
+
                     using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
                     try
                     {
@@ -124,6 +132,8 @@ public class BotBalancer : BaseBalancer
                         _logger.LogError(ex, "Account:{accountName} balance for symbol:{accountConfigSymbol} failed. CatchBlock:", account.Name, accountConfig.Symbol);
 
                         await transaction.RollbackAsync(cancellationToken);
+
+                        errorsCount++;
                     }
                 }
 
@@ -132,8 +142,14 @@ public class BotBalancer : BaseBalancer
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Account:{accountName} balance failed. CatchBlock:", account.Name);
+
+                errorsCount++;
             }
         }
+
+        var errorRate = errorsCount / attemptsCount;
+
+        _logger.LogWarning("Error Status | errorRate:{errorRate}, count:{count}, attempts:{count}", errorRate, errorsCount, attemptsCount);
     }
 
     private async Task<IList<TransactionEntity>> CreateAccountTransactions(int accountId, string symbol, decimal differenceAmount, string source, CancellationToken cancellationToken)

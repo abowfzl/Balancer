@@ -47,20 +47,20 @@ public class BotBalancer : BaseBalancer
 
         var allCurrencies = await _currencyService.GetAll(cancellationToken);
 
-        var attemptsCount = 0;
+        float attemptsCount = 0;
 
-        var errorsCount = 0;
+        float errorsCount = 0;
 
         foreach (var account in allAccounts)
         {
-            attemptsCount++;
-
             try
             {
                 await Task.Delay(500, cancellationToken);
 
                 if (new int[] { Account.UserId, Account.B2BId, Account.MasterId }.Contains(account.Id))
                     continue;
+
+                attemptsCount++;
 
                 _logger.LogInformation("Account:{accountName} balance process began", account.Name);
 
@@ -147,9 +147,9 @@ public class BotBalancer : BaseBalancer
             }
         }
 
-        var errorRate = errorsCount / attemptsCount;
+        var errorRate = (errorsCount / attemptsCount) * 100;
 
-        _logger.LogWarning("Error Status | errorRate:{errorRate}, count:{count}, attempts:{count}", errorRate, errorsCount, attemptsCount);
+        _logger.LogWarning("Summery | errorRate:{errorRate}, errorsCount:{errorsCount}, attempts:{attemptsCount}", errorRate, errorsCount, attemptsCount);
     }
 
     private async Task<IList<TransactionEntity>> CreateAccountTransactions(int accountId, string symbol, decimal differenceAmount, string source, CancellationToken cancellationToken)

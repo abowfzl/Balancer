@@ -68,8 +68,10 @@ public abstract class BaseBalancer : IBalancer
 
                     _logger.LogInformation("Worker:{workerName} loop completed", worker.Name);
                 }
-                else 
+                else
                     _logger.LogWarning("Worker:{workerName} time isn't reach to start. wait again for interval", worker.Name);
+
+                _logger.LogInformation("Goodbye from Worker:{workerName}", worker.Name);
             }
             catch (Exception exception)
             {

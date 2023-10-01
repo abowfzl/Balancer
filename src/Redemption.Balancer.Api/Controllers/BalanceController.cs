@@ -37,7 +37,7 @@ public class BalanceController : ApiControllerBase
         var transaction = await CreateBalanceTransaction(Account.B2BId, Account.MasterId, inputDto.Symbol, inputDto.Value, "inject", cancellationToken);
         transaction.CreatedBy = GetUserIdFromHeader();
 
-        await _transactionService.Insert(transaction, cancellationToken);
+        await _transactionService.Add(transaction, cancellationToken);
 
         return true;
     }
@@ -62,7 +62,7 @@ public class BalanceController : ApiControllerBase
         var transaction = await CreateBalanceTransaction(Account.MasterId, Account.B2BId, inputDto.Symbol, -inputDto.Value, "withdraw", cancellationToken);
         transaction.CreatedBy = GetUserIdFromHeader();
 
-        await _transactionService.Insert(transaction, cancellationToken);
+        await _transactionService.Add(transaction, cancellationToken);
 
         return true;
     }

@@ -8,7 +8,7 @@ public interface IWorkerService
     ValueTask<bool> IsWorkerEnabled(WorkerEntity workerEntity, CancellationToken cancellationToken);
     Task Update(WorkerEntity workerEntity, CancellationToken cancellationToken);
     Task<WorkerEntity> GetByName(string name, CancellationToken cancellationToken);
-    Task Insert(WorkerEntity workerEntity, CancellationToken cancellationToken);
+    Task Add(WorkerEntity workerEntity, CancellationToken cancellationToken);
     Task Delete(WorkerEntity workerEntity, CancellationToken cancellationToken);
     Task<IList<WorkerEntity>> GetAll(CancellationToken cancellationToken);
 }

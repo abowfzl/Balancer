@@ -95,7 +95,7 @@ public class BotBalancer : BaseBalancer
                         {
                             var transactions = await CreateAccountTransactions(accountConfig.AccountId, accountConfig.Symbol!, differenceBalance, "balancer", cancellationToken);
 
-                            await _transactionService.Insert(transactions, cancellationToken);
+                            await _transactionService.Add(transactions, cancellationToken);
 
                             var parameterTransaction = transactions.First(t => t.FromAccountId == Account.MasterId || t.ToAccountId == Account.MasterId);
 

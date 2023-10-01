@@ -32,7 +32,7 @@ public class AccountConfigService : IAccountConfigService
         return accountConfig;
     }
 
-    public async Task Insert(AccountConfigEntity accountConfig, CancellationToken cancellationToken)
+    public async Task Add(AccountConfigEntity accountConfig, CancellationToken cancellationToken)
     {
         await _dbContext.AccountConfigs.AddAsync(accountConfig, cancellationToken);
 

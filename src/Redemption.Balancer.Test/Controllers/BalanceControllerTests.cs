@@ -85,7 +85,7 @@ public class BalanceControllerTests
 
         Assert.True(response);
 
-        _transactionService.Verify(w => w.Insert(transactionEntityToBeInserted, cancellationToken));
+        _transactionService.Verify(w => w.Add(transactionEntityToBeInserted, cancellationToken));
 
         #endregion
     }
@@ -134,7 +134,7 @@ public class BalanceControllerTests
 
         Assert.True(response);
 
-        _transactionService.Verify(w => w.Insert(transactionEntityToBeInserted, cancellationToken));
+        _transactionService.Verify(w => w.Add(transactionEntityToBeInserted, cancellationToken));
 
         #endregion
     }

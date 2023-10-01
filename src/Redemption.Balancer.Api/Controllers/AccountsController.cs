@@ -36,7 +36,7 @@ public class AccountsController : ApiControllerBase
         var accountConfigEntityToAdd = _mapper.Map<AccountEntity>(inputDto);
         accountConfigEntityToAdd.CreatedBy = GetUserIdFromHeader();
 
-        await _accountService.Insert(accountConfigEntityToAdd, cancellationToken);
+        await _accountService.Add(accountConfigEntityToAdd, cancellationToken);
 
         return true;
     }

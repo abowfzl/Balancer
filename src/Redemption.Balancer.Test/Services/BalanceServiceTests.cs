@@ -29,7 +29,7 @@ public class BalanceServiceTests
     {
         var request = new BalanceStatusInputDto()
         {
-            B2BIRRRate = 40000
+            B2BIrrRate = 40000
         };
 
         var accountId = Account.MasterId;
@@ -38,17 +38,17 @@ public class BalanceServiceTests
 
         var expectedResult = new BalanceStatus()
         {
-            TotalBalanceInIRR = -20600000m,
-            TotalBalanceInUSDT = -515,
-            IRRBalance = 37_000_000,
-            USDTBalance = -1440M,
-            IRRInject = -47300000,
-            USDTInject = 1182.5m,
+            TotalBalanceInIrr = -20600000m,
+            TotalBalanceInUsdt = -515,
+            IrrBalance = 37_000_000,
+            UsdtBalance = -1440M,
+            IrrInject = -47300000,
+            UsdtInject = 1182.5m,
         };
 
-        _transactionService.Setup(ts => ts.CalculateAccountIRRTransactions(accountId, cancellationToken, null, null)).ReturnsAsync(37_000_000);
+        _transactionService.Setup(ts => ts.CalculateAccountIrrTransactions(accountId, cancellationToken, null, null)).ReturnsAsync(37_000_000);
 
-        _transactionService.Setup(ts => ts.CalculateAccountUSDTTransactions(accountId, cancellationToken, null, null)).ReturnsAsync(-1_440);
+        _transactionService.Setup(ts => ts.CalculateAccountUsdtTransactions(accountId, cancellationToken, null, null)).ReturnsAsync(-1_440);
 
         var result = await _balanceService.GetBalanceStatus(request, accountId, cancellationToken);
 
@@ -60,7 +60,7 @@ public class BalanceServiceTests
     {
         var request = new BalanceStatusInputDto()
         {
-            B2BIRRRate = 0
+            B2BIrrRate = 0
         };
 
         var accountId = Account.MasterId;

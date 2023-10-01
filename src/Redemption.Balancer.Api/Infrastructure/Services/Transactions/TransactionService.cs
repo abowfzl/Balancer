@@ -17,14 +17,14 @@ public class TransactionService : ITransactionService
         _dateTimeProvider = dateTimeProvider;
     }
 
-    public async Task Insert(TransactionEntity transaction, CancellationToken cancellationToken)
+    public async Task Add(TransactionEntity transaction, CancellationToken cancellationToken)
     {
         _dbContext.Transactions.Add(transaction);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task Insert(IList<TransactionEntity> transactions, CancellationToken cancellationToken)
+    public async Task Add(IList<TransactionEntity> transactions, CancellationToken cancellationToken)
     {
         _dbContext.Transactions.AddRange(transactions);
 
@@ -71,7 +71,7 @@ public class TransactionService : ITransactionService
         };
     }
 
-    public async ValueTask<decimal> CalculateAccountIRRTransactions(int accountId, CancellationToken cancellationToken, DateTime? startDate = null, DateTime? endDate = null)
+    public async ValueTask<decimal> CalculateAccountIrrTransactions(int accountId, CancellationToken cancellationToken, DateTime? startDate = null, DateTime? endDate = null)
     {
         var query = _dbContext.Transactions.AsQueryable();
 
@@ -89,7 +89,7 @@ public class TransactionService : ITransactionService
         return total;
     }
 
-    public async ValueTask<decimal> CalculateAccountUSDTTransactions(int accountId, CancellationToken cancellationToken, DateTime? startDate = null, DateTime? endDate = null)
+    public async ValueTask<decimal> CalculateAccountUsdtTransactions(int accountId, CancellationToken cancellationToken, DateTime? startDate = null, DateTime? endDate = null)
     {
         var query = _dbContext.Transactions.AsQueryable();
 

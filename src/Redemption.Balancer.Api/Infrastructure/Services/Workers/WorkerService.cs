@@ -59,7 +59,7 @@ public class WorkerService : IWorkerService
         return workerEntity;
     }
 
-    public async Task Insert(WorkerEntity workerEntity, CancellationToken cancellationToken)
+    public async Task Add(WorkerEntity workerEntity, CancellationToken cancellationToken)
     {
         _dbContext.Workers.Add(workerEntity);
 

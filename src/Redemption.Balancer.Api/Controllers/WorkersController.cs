@@ -41,7 +41,7 @@ public class WorkersController : ApiControllerBase
     {
         var workerEntityToAdd = _mapper.Map<WorkerEntity>(inputDto);
 
-        await _workerService.Insert(workerEntityToAdd, cancellationToken);
+        await _workerService.Add(workerEntityToAdd, cancellationToken);
 
         return true;
     }

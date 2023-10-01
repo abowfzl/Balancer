@@ -15,7 +15,7 @@ public class AccountService : IAccountService
         _dbContext = dbContext;
     }
 
-    public async Task Insert(AccountEntity accountEntity, CancellationToken cancellationToken)
+    public async Task Add(AccountEntity accountEntity, CancellationToken cancellationToken)
     {
         _dbContext.Accounts.Add(accountEntity);
 

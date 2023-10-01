@@ -55,9 +55,9 @@ public class ConfigController : ApiControllerBase
 
         var trackingId = Random.Shared.Next();
 
-        await _balanceAccountConfigService.BalanceInsertAccountConfig(trackingId, accountConfigEntityToAdd, accountEntity, cancellationToken);
+        await _balanceAccountConfigService.BalanceAddAccountConfig(trackingId, accountConfigEntityToAdd, accountEntity, cancellationToken);
 
-        await _accountConfigService.Insert(accountConfigEntityToAdd, cancellationToken);
+        await _accountConfigService.Add(accountConfigEntityToAdd, cancellationToken);
 
         return true;
     }

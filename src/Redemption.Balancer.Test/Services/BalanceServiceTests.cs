@@ -29,7 +29,7 @@ public class BalanceServiceTests
     {
         var request = new BalanceStatusInputDto()
         {
-            B2BIRRRate = 40000
+            B2bIrrRate = 40000
         };
 
         var accountId = Account.MasterId;
@@ -38,15 +38,17 @@ public class BalanceServiceTests
 
         var expectedResult = new BalanceStatus()
         {
-            IRRGained = -20600000m,
-            USDTGained = -515,
-            IRRInject = -47300000,
-            USDTInject = 1182.5m,
+            TotalBalanceInIrr = -20600000m,
+            TotalBalanceInUsdt = -515,
+            IrrBalance = 37_000_000,
+            UsdtBalance = -1440M,
+            IrrDebit = -47300000,
+            UsdtDebit = 1182.5m,
         };
 
-        _transactionService.Setup(ts => ts.CalculateAccountIRRTransactions(accountId, cancellationToken, null, null)).ReturnsAsync(37_000_000);
+        _transactionService.Setup(ts => ts.CalculateAccountIrrTransactions(accountId, cancellationToken, null, null)).ReturnsAsync(37_000_000);
 
-        _transactionService.Setup(ts => ts.CalculateAccountUSDTTransactions(accountId, cancellationToken, null, null)).ReturnsAsync(-1_440);
+        _transactionService.Setup(ts => ts.CalculateAccountUsdtTransactions(accountId, cancellationToken, null, null)).ReturnsAsync(-1_440);
 
         var result = await _balanceService.GetBalanceStatus(request, accountId, cancellationToken);
 
@@ -54,11 +56,11 @@ public class BalanceServiceTests
     }
 
     [Fact]
-    public async Task Should_Throw_Exception_On_B2BIRRRate_Not_Provided()
+    public async Task Should_Throw_Exception_On_B2bIrrRate_Not_Provided()
     {
         var request = new BalanceStatusInputDto()
         {
-            B2BIRRRate = 0
+            B2bIrrRate = 0
         };
 
         var accountId = Account.MasterId;

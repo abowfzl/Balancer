@@ -33,7 +33,7 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
         _logger = logger;
     }
 
-    public async Task BalanceInsertAccountConfig(int trackingId, AccountConfigEntity newAccountConfigEntity, AccountEntity accountEntity, CancellationToken cancellationToken)
+    public async Task BalanceAddAccountConfig(int trackingId, AccountConfigEntity newAccountConfigEntity, AccountEntity accountEntity, CancellationToken cancellationToken)
     {
         using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
         try
@@ -49,9 +49,9 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
 
             var differenceBalance = newAccountConfigEntity.Value - balanceValue;
 
-            var transactions = await CreateInsertAccountConfigTransactions(accountEntity.Id, symbol, newAccountConfigEntity.Value, cancellationToken);
+            var transactions = await CreateAddAccountConfigTransactions(accountEntity.Id, symbol, newAccountConfigEntity.Value, cancellationToken);
 
-            await _transactionService.Insert(transactions, cancellationToken);
+            await _transactionService.Add(transactions, cancellationToken);
 
             var parameterTransaction = transactions.First(t => t.FromAccountId == Account.MasterId || t.ToAccountId == Account.MasterId);
 
@@ -71,7 +71,7 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
 
             var denormalPrice = PriceExtensions.Denormalize(differenceBalance, currency.NormalizationScale);
 
-            _logger.LogWarning("UpdateBalance in insert config | symbol:{symbol}, StemeraldUserId:{StemeraldUserId}, denormalPrice:{denormalPrice}, detail:{businessDetail}", symbol, accountEntity.StemeraldUserId, denormalPrice, JsonConvert.SerializeObject(businessDetail));
+            _logger.LogWarning("UpdateBalance in add config | symbol:{symbol}, StemeraldUserId:{StemeraldUserId}, denormalPrice:{denormalPrice}, detail:{businessDetail}", symbol, accountEntity.StemeraldUserId, denormalPrice, JsonConvert.SerializeObject(businessDetail));
 
             await _stexchangeService.UpdateBalance(trackingId, accountEntity.StemeraldUserId, symbol, "balancer", parameterTransaction.Id, denormalPrice, businessDetail, cancellationToken);
 
@@ -79,7 +79,7 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Exception in BalanceInsertAccountConfig. CatchBlock:");
+            _logger.LogError(ex, "Exception in BalanceAddAccountConfig. CatchBlock:");
             await transaction.RollbackAsync(cancellationToken);
             throw;
         }
@@ -101,7 +101,7 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
 
             var transactions = await CreateUpdateAccountConfigTransactions(accountEntity.Id, symbol, differenceBalance, cancellationToken);
 
-            await _transactionService.Insert(transactions, cancellationToken);
+            await _transactionService.Add(transactions, cancellationToken);
 
             var parameterTransaction = transactions.First(t => t.FromAccountId == Account.MasterId || t.ToAccountId == Account.MasterId);
 
@@ -147,7 +147,7 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
 
             var transactions = await CreateDeleteAccountConfigTransactions(accountEntity.Id, accountConfigEntity.Symbol!, differenceBalance, cancellationToken);
 
-            await _transactionService.Insert(transactions, cancellationToken);
+            await _transactionService.Add(transactions, cancellationToken);
 
             var parameterTransaction = transactions.First(t => t.FromAccountId == Account.MasterId || t.ToAccountId == Account.MasterId);
 
@@ -182,14 +182,14 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
         }
     }
 
-    private async Task<IList<TransactionEntity>> CreateInsertAccountConfigTransactions(int accountId, string symbol, decimal amount, CancellationToken cancellationToken)
+    private async Task<IList<TransactionEntity>> CreateAddAccountConfigTransactions(int accountId, string symbol, decimal amount, CancellationToken cancellationToken)
     {
         var currencyReferencePrice = await _priceService.CalculateReferencePrice(symbol, cancellationToken);
 
         var transactions = new List<TransactionEntity>
         {
             _transactionService.GetDebitTransaction(Account.MasterId, accountId, symbol, currencyReferencePrice, -amount, "insert config"),
-            _transactionService.GetCreditTransaction(Account.B2BId, Account.MasterId, symbol, currencyReferencePrice, amount, "insert config")
+            _transactionService.GetCreditTransaction(Account.B2bId, Account.MasterId, symbol, currencyReferencePrice, amount, "insert config")
         };
 
         return transactions;
@@ -204,12 +204,12 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
         if (differenceAmount > 0)
         {
             transactions.Add(_transactionService.GetDebitTransaction(Account.MasterId, accountId, symbol, currencyReferencePrice, -differenceAmount, "update config"));
-            transactions.Add(_transactionService.GetCreditTransaction(Account.B2BId, Account.MasterId, symbol, currencyReferencePrice, differenceAmount, "update config"));
+            transactions.Add(_transactionService.GetCreditTransaction(Account.B2bId, Account.MasterId, symbol, currencyReferencePrice, differenceAmount, "update config"));
         }
         else
         {
             transactions.Add(_transactionService.GetDebitTransaction(accountId, Account.MasterId, symbol, currencyReferencePrice, differenceAmount, "update config"));
-            transactions.Add(_transactionService.GetCreditTransaction(Account.MasterId, Account.B2BId, symbol, currencyReferencePrice, -differenceAmount, "update config"));
+            transactions.Add(_transactionService.GetCreditTransaction(Account.MasterId, Account.B2bId, symbol, currencyReferencePrice, -differenceAmount, "update config"));
         }
 
 
@@ -223,7 +223,7 @@ public class BalanceAccountConfigService : IBalanceAccountConfigService
         var transactions = new List<TransactionEntity>
         {
             _transactionService.GetDebitTransaction(accountId,Account.MasterId, symbol, currencyReferencePrice, amount, "delete config"),
-            _transactionService.GetCreditTransaction(Account.MasterId, Account.B2BId, symbol, currencyReferencePrice, -amount, "delete config")
+            _transactionService.GetCreditTransaction(Account.MasterId, Account.B2bId, symbol, currencyReferencePrice, -amount, "delete config")
         };
 
         return transactions;

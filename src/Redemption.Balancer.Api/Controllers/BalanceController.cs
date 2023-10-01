@@ -30,14 +30,14 @@ public class BalanceController : ApiControllerBase
 
     [Role(new[] { Role.Admin })]
     [HttpPost("[action]")]
-    public async ValueTask<bool> Inject(BalanceInputDto inputDto, CancellationToken cancellationToken)
+    public async ValueTask<bool> Deposit(BalanceInputDto inputDto, CancellationToken cancellationToken)
     {
         ValidateInputs(inputDto);
 
-        var transaction = await CreateBalanceTransaction(Account.B2BId, Account.MasterId, inputDto.Symbol, inputDto.Value, "inject", cancellationToken);
+        var transaction = await CreateBalanceTransaction(Account.B2bId, Account.MasterId, inputDto.Symbol, inputDto.Value, "deposit", cancellationToken);
         transaction.CreatedBy = GetUserIdFromHeader();
 
-        await _transactionService.Insert(transaction, cancellationToken);
+        await _transactionService.Add(transaction, cancellationToken);
 
         return true;
     }
@@ -59,10 +59,10 @@ public class BalanceController : ApiControllerBase
     {
         ValidateInputs(inputDto);
 
-        var transaction = await CreateBalanceTransaction(Account.MasterId, Account.B2BId, inputDto.Symbol, -inputDto.Value, "withdraw", cancellationToken);
+        var transaction = await CreateBalanceTransaction(Account.MasterId, Account.B2bId, inputDto.Symbol, -inputDto.Value, "withdraw", cancellationToken);
         transaction.CreatedBy = GetUserIdFromHeader();
 
-        await _transactionService.Insert(transaction, cancellationToken);
+        await _transactionService.Add(transaction, cancellationToken);
 
         return true;
     }

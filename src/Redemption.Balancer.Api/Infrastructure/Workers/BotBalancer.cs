@@ -57,7 +57,7 @@ public class BotBalancer : BaseBalancer
             {
                 await Task.Delay(500, cancellationToken);
 
-                if (new int[] { Account.UserId, Account.B2BId, Account.MasterId }.Contains(account.Id))
+                if (new int[] { Account.UserId, Account.B2bId, Account.MasterId }.Contains(account.Id))
                     continue;
 
                 attemptsCount++;
@@ -95,7 +95,7 @@ public class BotBalancer : BaseBalancer
                         {
                             var transactions = await CreateAccountTransactions(accountConfig.AccountId, accountConfig.Symbol!, differenceBalance, "balancer", cancellationToken);
 
-                            await _transactionService.Insert(transactions, cancellationToken);
+                            await _transactionService.Add(transactions, cancellationToken);
 
                             var parameterTransaction = transactions.First(t => t.FromAccountId == Account.MasterId || t.ToAccountId == Account.MasterId);
 

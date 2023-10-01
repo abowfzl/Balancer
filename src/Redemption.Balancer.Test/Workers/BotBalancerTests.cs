@@ -219,9 +219,9 @@ public class BotBalancerTests
         var bchTransactions = new List<TransactionEntity>() { bchCreditTransaction, bchDebitTransaction };
         var xrpTransactions = new List<TransactionEntity>() { xrpCreditTransaction, xrpDebitTransaction };
 
-        _transactionService.Verify(s => s.Insert(It.Is<IList<TransactionEntity>>(el => el.All(irrTransactions.Contains)), cancellationToken), Times.Exactly(1));
-        _transactionService.Verify(s => s.Insert(It.Is<IList<TransactionEntity>>(el => el.All(bchTransactions.Contains)), cancellationToken), Times.Exactly(1));
-        _transactionService.Verify(s => s.Insert(It.Is<IList<TransactionEntity>>(el => el.All(xrpTransactions.Contains)), cancellationToken), Times.Exactly(1));
+        _transactionService.Verify(s => s.Add(It.Is<IList<TransactionEntity>>(el => el.All(irrTransactions.Contains)), cancellationToken), Times.Exactly(1));
+        _transactionService.Verify(s => s.Add(It.Is<IList<TransactionEntity>>(el => el.All(bchTransactions.Contains)), cancellationToken), Times.Exactly(1));
+        _transactionService.Verify(s => s.Add(It.Is<IList<TransactionEntity>>(el => el.All(xrpTransactions.Contains)), cancellationToken), Times.Exactly(1));
 
         _stexchangeService.Verify(s => s.UpdateBalance(trackingId, 1000, "XRP", "balancer", 2000, -0.0100m, It.IsAny<BusinessDetailModel<TransactionBusinessModel>>(), cancellationToken), Times.Once());
 
@@ -257,7 +257,7 @@ public class BotBalancerTests
             },
             new AccountEntity()
             {
-                Id = Account.B2BId,
+                Id = Account.B2bId,
                 Name = "B2B",
                 StemeraldUserId = 0,
             }
@@ -275,7 +275,7 @@ public class BotBalancerTests
 
         #region Assert
 
-        _transactionService.Verify(s => s.Insert(It.IsAny<IList<TransactionEntity>>(), cancellationToken), Times.Never());
+        _transactionService.Verify(s => s.Add(It.IsAny<IList<TransactionEntity>>(), cancellationToken), Times.Never());
 
         _stexchangeService.Verify(s => s.UpdateBalance(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<decimal>(), It.IsAny<BusinessDetailModel<TransactionBusinessModel>>(), cancellationToken), Times.Never());
 

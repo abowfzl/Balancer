@@ -19,37 +19,37 @@ public class BalanceService : IBalanceService
     {
         ValidateRequest(request);
 
-        var balanceStatus = new BalanceStatus();
+        var balanceStatus = new BalanceStatus
+        {
+            IrrBalance = await _transactionService.CalculateAccountIrrTransactions(accountId, cancellationToken, request.StartDate, request.EndDate),
+            UsdtBalance = await _transactionService.CalculateAccountUsdtTransactions(accountId, cancellationToken, request.StartDate, request.EndDate)
+        };
 
-        var irrBalanceValue = await _transactionService.CalculateAccountIRRTransactions(accountId, cancellationToken, request.StartDate, request.EndDate);
+        balanceStatus.TotalBalanceInUsdt = balanceStatus.UsdtBalance + ConvertIrrToUsdt(balanceStatus.IrrBalance, request.B2bIrrRate);
+        balanceStatus.TotalBalanceInIrr = ConvertUsdtToIrr(balanceStatus.UsdtBalance, request.B2bIrrRate) + balanceStatus.IrrBalance;
 
-        var usdtBalanceValue = await _transactionService.CalculateAccountUSDTTransactions(accountId, cancellationToken, request.StartDate, request.EndDate);
+        var balancedUsdtBalance = balanceStatus.TotalBalanceInUsdt / 2;
+        var balancedIrrBalance = ConvertUsdtToIrr(balancedUsdtBalance, request.B2bIrrRate);
 
-        balanceStatus.USDTGained = usdtBalanceValue + ConvertIRRtoUSDT(irrBalanceValue, request.B2BIRRRate);
-        balanceStatus.IRRGained = ConvertUSDTtoIRR(usdtBalanceValue, request.B2BIRRRate) + irrBalanceValue;
-
-        var balancedUSDTBalance = balanceStatus.USDTGained / 2;
-        var balancedIRRBalance = ConvertUSDTtoIRR(balancedUSDTBalance, request.B2BIRRRate);
-
-        balanceStatus.USDTInject = balancedUSDTBalance - usdtBalanceValue;
-        balanceStatus.IRRInject = balancedIRRBalance - irrBalanceValue;
+        balanceStatus.UsdtDebit = balancedUsdtBalance - balanceStatus.UsdtBalance;
+        balanceStatus.IrrDebit = balancedIrrBalance - balanceStatus.IrrBalance;
 
         return balanceStatus;
     }
 
-    private static decimal ConvertIRRtoUSDT(decimal irrValue, decimal irrRate)
+    private static decimal ConvertIrrToUsdt(decimal irrValue, decimal irrRate)
     {
         return irrValue / irrRate;
     }
 
-    private static decimal ConvertUSDTtoIRR(decimal usdtValue, decimal irrRate)
+    private static decimal ConvertUsdtToIrr(decimal usdtValue, decimal irrRate)
     {
         return usdtValue * irrRate;
     }
 
     private static void ValidateRequest(BalanceStatusInputDto request)
     {
-        if (request.B2BIRRRate <= 0)
-            throw new BadRequestException("Property 'B2BIRRRate' should be greater than 0");
+        if (request.B2bIrrRate <= 0)
+            throw new BadRequestException("Property 'B2bIrrRate' should be greater than 0");
     }
 }

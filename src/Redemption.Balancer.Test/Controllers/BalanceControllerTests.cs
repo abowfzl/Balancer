@@ -45,19 +45,19 @@ public class BalanceControllerTests
     [InlineData("USDT", 100, 0.000038622580)]
     [InlineData("IRR", 100000, 0.000000000767022)]
     [InlineData("DOGE", 5000, .00000243901591)]
-    public async Task Insert_Withdraw_Transaction(string symbol, decimal value, decimal referencePrice)
+    public async Task Add_Withdraw_Transaction(string symbol, decimal value, decimal referencePrice)
     {
         #region Arrange
 
         var cancellationToken = CancellationToken.None;
 
-        var transactionEntityToBeInserted = new TransactionEntity()
+        var transactionEntityToBeAdded = new TransactionEntity()
         {
             Id = 1,
             Symbol = symbol,
             Amount = value,
             TotalValue = referencePrice * value,
-            ToAccountId = Account.B2BId,
+            ToAccountId = Account.B2bId,
             FromAccountId = Account.MasterId,
         };
 
@@ -70,8 +70,8 @@ public class BalanceControllerTests
 
         _priceService.Setup(p => p.CalculateReferencePrice(symbol, cancellationToken)).ReturnsAsync(referencePrice);
 
-        //the master is debit to b2b so value should be negative(it means that the value should be decreased from master and increase for b2b)
-        _transactionService.Setup(w => w.GetDebitTransaction(Account.MasterId, Account.B2BId, symbol, referencePrice, -value, "withdraw")).Returns(transactionEntityToBeInserted);
+        //the master is debit to B2b so value should be negative(it means that the value should be decreased from master and increase for B2b)
+        _transactionService.Setup(w => w.GetDebitTransaction(Account.MasterId, Account.B2bId, symbol, referencePrice, -value, "withdraw")).Returns(transactionEntityToBeAdded);
 
         #endregion
 
@@ -85,7 +85,7 @@ public class BalanceControllerTests
 
         Assert.True(response);
 
-        _transactionService.Verify(w => w.Insert(transactionEntityToBeInserted, cancellationToken));
+        _transactionService.Verify(w => w.Add(transactionEntityToBeAdded, cancellationToken));
 
         #endregion
     }
@@ -94,20 +94,20 @@ public class BalanceControllerTests
     [InlineData("USDT", 100, 1)]
     [InlineData("IRR", 100000, 50312.69679600254)]
     [InlineData("DOGE", 5000, 0.0063149999559843)]
-    public async Task Insert_Inject_Transaction(string symbol, decimal value, decimal referencePrice)
+    public async Task Add_Deposit_Transaction(string symbol, decimal value, decimal referencePrice)
     {
         #region Arrange
 
         var cancellationToken = CancellationToken.None;
 
-        var transactionEntityToBeInserted = new TransactionEntity()
+        var transactionEntityToBeAdded = new TransactionEntity()
         {
             Id = 1,
             Symbol = symbol,
             Amount = value,
             TotalValue = referencePrice * value,
             ToAccountId = Account.MasterId,
-            FromAccountId = Account.B2BId,
+            FromAccountId = Account.B2bId,
         };
 
         var input = new BalanceInputDto()
@@ -119,14 +119,14 @@ public class BalanceControllerTests
 
         _priceService.Setup(p => p.CalculateReferencePrice(symbol, cancellationToken)).ReturnsAsync(referencePrice);
 
-        //the B2B is want to credit to master so value should be positive(it means that the value should be decreased from b2b and increase for master)
-        _transactionService.Setup(w => w.GetCreditTransaction(Account.B2BId, Account.MasterId, symbol, referencePrice, value, "inject")).Returns(transactionEntityToBeInserted);
+        //the B2b is want to credit to master so value should be positive(it means that the value should be decreased from B2b and increase for master)
+        _transactionService.Setup(w => w.GetCreditTransaction(Account.B2bId, Account.MasterId, symbol, referencePrice, value, "deposit")).Returns(transactionEntityToBeAdded);
 
         #endregion
 
         #region Act
 
-        var response = await _balanceController.Inject(input, cancellationToken);
+        var response = await _balanceController.Deposit(input, cancellationToken);
 
         #endregion
 
@@ -134,13 +134,13 @@ public class BalanceControllerTests
 
         Assert.True(response);
 
-        _transactionService.Verify(w => w.Insert(transactionEntityToBeInserted, cancellationToken));
+        _transactionService.Verify(w => w.Add(transactionEntityToBeAdded, cancellationToken));
 
         #endregion
     }
 
     [Fact]
-    public async Task Should_Throw_Exception_When_Inject_And_Withdraw_With_Negative_Number()
+    public async Task Should_Throw_Exception_When_Deposit_And_Withdraw_With_Negative_Number()
     {
         var cancellationToken = CancellationToken.None;
 
@@ -150,11 +150,11 @@ public class BalanceControllerTests
             Value = -10
         };
 
-        var injectAction = async () => await _balanceController.Inject(input, cancellationToken);
+        var depositAction = async () => await _balanceController.Deposit(input, cancellationToken);
 
         var withdrawAction = async () => await _balanceController.Withdraw(input, cancellationToken);
 
-        await injectAction.Should().ThrowExactlyAsync<BadRequestException>();
+        await depositAction.Should().ThrowExactlyAsync<BadRequestException>();
         await withdrawAction.Should().ThrowExactlyAsync<BadRequestException>();
     }
 

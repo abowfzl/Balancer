@@ -46,7 +46,7 @@ public static class AccountConfigurations
             },
             new AccountEntity()
             {
-                Id = Account.B2BId,
+                Id = Account.B2bId,
                 Name = "B2B",
                 StemeraldUserId = 0,
                 CreatedBy = 0,

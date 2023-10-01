@@ -2,11 +2,15 @@
 
 public class BalanceStatusOutputDto
 {
-    public decimal IRRGained { get; set; }
+    public decimal TotalMasterBalanceInIrr { get; set; }
 
-    public decimal USDTGained { get; set; }
+    public decimal TotalMasterBalanceInUsdt { get; set; }
 
-    public decimal IRRInject { get; set; }
+    public decimal IrrMasterBalance { get; set; }
 
-    public decimal USDTInject { get; set; }
+    public decimal UsdtMasterBalance { get; set; }
+
+    public decimal MasterIrrDebit { get; set; }
+
+    public decimal MasterUsdtDebit { get; set; }
 }

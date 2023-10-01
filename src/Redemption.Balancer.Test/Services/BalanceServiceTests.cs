@@ -29,7 +29,7 @@ public class BalanceServiceTests
     {
         var request = new BalanceStatusInputDto()
         {
-            B2BIrrRate = 40000
+            B2bIrrRate = 40000
         };
 
         var accountId = Account.MasterId;
@@ -56,11 +56,11 @@ public class BalanceServiceTests
     }
 
     [Fact]
-    public async Task Should_Throw_Exception_On_B2BIRRRate_Not_Provided()
+    public async Task Should_Throw_Exception_On_B2bIrrRate_Not_Provided()
     {
         var request = new BalanceStatusInputDto()
         {
-            B2BIrrRate = 0
+            B2bIrrRate = 0
         };
 
         var accountId = Account.MasterId;

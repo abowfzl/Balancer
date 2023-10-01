@@ -25,14 +25,14 @@ public class BalanceService : IBalanceService
             UsdtBalance = await _transactionService.CalculateAccountUsdtTransactions(accountId, cancellationToken, request.StartDate, request.EndDate)
         };
 
-        balanceStatus.TotalBalanceInUsdt = balanceStatus.UsdtBalance + ConvertIrrToUsdt(balanceStatus.IrrBalance, request.B2BIrrRate);
-        balanceStatus.TotalBalanceInIrr = ConvertUsdtToIrr(balanceStatus.UsdtBalance, request.B2BIrrRate) + balanceStatus.IrrBalance;
+        balanceStatus.TotalBalanceInUsdt = balanceStatus.UsdtBalance + ConvertIrrToUsdt(balanceStatus.IrrBalance, request.B2bIrrRate);
+        balanceStatus.TotalBalanceInIrr = ConvertUsdtToIrr(balanceStatus.UsdtBalance, request.B2bIrrRate) + balanceStatus.IrrBalance;
 
         var balancedUsdtBalance = balanceStatus.TotalBalanceInUsdt / 2;
-        var balancedIrrBalance = ConvertUsdtToIrr(balancedUsdtBalance, request.B2BIrrRate);
+        var balancedIrrBalance = ConvertUsdtToIrr(balancedUsdtBalance, request.B2bIrrRate);
 
-        balanceStatus.UsdtInject = balancedUsdtBalance - balanceStatus.UsdtBalance;
-        balanceStatus.IrrInject = balancedIrrBalance - balanceStatus.IrrBalance;
+        balanceStatus.UsdtDebit = balancedUsdtBalance - balanceStatus.UsdtBalance;
+        balanceStatus.IrrDebit = balancedIrrBalance - balanceStatus.IrrBalance;
 
         return balanceStatus;
     }
@@ -49,7 +49,7 @@ public class BalanceService : IBalanceService
 
     private static void ValidateRequest(BalanceStatusInputDto request)
     {
-        if (request.B2BIrrRate <= 0)
-            throw new BadRequestException("Property 'B2BIRRRate' should be greater than 0");
+        if (request.B2bIrrRate <= 0)
+            throw new BadRequestException("Property 'B2bIrrRate' should be greater than 0");
     }
 }

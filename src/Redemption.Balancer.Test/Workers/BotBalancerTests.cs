@@ -257,7 +257,7 @@ public class BotBalancerTests
             },
             new AccountEntity()
             {
-                Id = Account.B2BId,
+                Id = Account.B2bId,
                 Name = "B2B",
                 StemeraldUserId = 0,
             }

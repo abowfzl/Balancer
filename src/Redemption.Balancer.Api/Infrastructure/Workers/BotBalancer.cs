@@ -57,7 +57,7 @@ public class BotBalancer : BaseBalancer
             {
                 await Task.Delay(500, cancellationToken);
 
-                if (new int[] { Account.UserId, Account.B2BId, Account.MasterId }.Contains(account.Id))
+                if (new int[] { Account.UserId, Account.B2bId, Account.MasterId }.Contains(account.Id))
                     continue;
 
                 attemptsCount++;

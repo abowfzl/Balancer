@@ -67,7 +67,7 @@ public class ConfigControllerTests
     }
 
     [Fact]
-    public async Task Should_Throw_Exception_To_Insert_Config_While_Worker_Is_Running()
+    public async Task Should_Throw_Exception_To_Add_Config_While_Worker_Is_Running()
     {
         var cancellationToken = CancellationToken.None;
 

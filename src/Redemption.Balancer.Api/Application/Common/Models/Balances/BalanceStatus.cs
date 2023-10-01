@@ -10,8 +10,8 @@ public class BalanceStatus
 
     public decimal UsdtBalance { get; set; }
 
-    public decimal IrrInject { get; set; }
+    public decimal IrrDebit { get; set; }
 
-    public decimal UsdtInject { get; set; }
+    public decimal UsdtDebit { get; set; }
 
 }

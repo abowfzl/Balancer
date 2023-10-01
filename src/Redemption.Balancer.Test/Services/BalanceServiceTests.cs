@@ -42,8 +42,8 @@ public class BalanceServiceTests
             TotalBalanceInUsdt = -515,
             IrrBalance = 37_000_000,
             UsdtBalance = -1440M,
-            IrrInject = -47300000,
-            UsdtInject = 1182.5m,
+            IrrDebit = -47300000,
+            UsdtDebit = 1182.5m,
         };
 
         _transactionService.Setup(ts => ts.CalculateAccountIrrTransactions(accountId, cancellationToken, null, null)).ReturnsAsync(37_000_000);

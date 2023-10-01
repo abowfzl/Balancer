@@ -10,7 +10,7 @@ public class BalanceStatusOutputDto
 
     public decimal UsdtMasterBalance { get; set; }
 
-    public decimal IrrInject { get; set; }
+    public decimal MasterIrrDebit { get; set; }
 
-    public decimal UsdtInject { get; set; }
+    public decimal MasterUsdtDebit { get; set; }
 }

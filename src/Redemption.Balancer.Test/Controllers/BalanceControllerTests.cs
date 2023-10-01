@@ -126,7 +126,7 @@ public class BalanceControllerTests
 
         #region Act
 
-        var response = await _balanceController.Inject(input, cancellationToken);
+        var response = await _balanceController.Deposit(input, cancellationToken);
 
         #endregion
 
@@ -140,7 +140,7 @@ public class BalanceControllerTests
     }
 
     [Fact]
-    public async Task Should_Throw_Exception_When_Inject_And_Withdraw_With_Negative_Number()
+    public async Task Should_Throw_Exception_When_Deposit_And_Withdraw_With_Negative_Number()
     {
         var cancellationToken = CancellationToken.None;
 
@@ -150,11 +150,11 @@ public class BalanceControllerTests
             Value = -10
         };
 
-        var injectAction = async () => await _balanceController.Inject(input, cancellationToken);
+        var depositAction = async () => await _balanceController.Deposit(input, cancellationToken);
 
         var withdrawAction = async () => await _balanceController.Withdraw(input, cancellationToken);
 
-        await injectAction.Should().ThrowExactlyAsync<BadRequestException>();
+        await depositAction.Should().ThrowExactlyAsync<BadRequestException>();
         await withdrawAction.Should().ThrowExactlyAsync<BadRequestException>();
     }
 

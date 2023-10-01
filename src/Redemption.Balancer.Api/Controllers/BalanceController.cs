@@ -30,7 +30,7 @@ public class BalanceController : ApiControllerBase
 
     [Role(new[] { Role.Admin })]
     [HttpPost("[action]")]
-    public async ValueTask<bool> Inject(BalanceInputDto inputDto, CancellationToken cancellationToken)
+    public async ValueTask<bool> Deposit(BalanceInputDto inputDto, CancellationToken cancellationToken)
     {
         ValidateInputs(inputDto);
 

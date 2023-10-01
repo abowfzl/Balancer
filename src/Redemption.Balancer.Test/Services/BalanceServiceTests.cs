@@ -38,8 +38,10 @@ public class BalanceServiceTests
 
         var expectedResult = new BalanceStatus()
         {
-            IRRGained = -20600000m,
-            USDTGained = -515,
+            TotalBalanceInIRR = -20600000m,
+            TotalBalanceInUSDT = -515,
+            IRRBalance = 37_000_000,
+            USDTBalance = -1440M,
             IRRInject = -47300000,
             USDTInject = 1182.5m,
         };

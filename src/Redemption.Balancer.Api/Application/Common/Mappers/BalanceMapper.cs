@@ -8,6 +8,10 @@ public class BalanceMapper : Profile
 {
     public BalanceMapper()
     {
-        CreateMap<BalanceStatus, BalanceStatusOutputDto>();
+        CreateMap<BalanceStatus, BalanceStatusOutputDto>()
+            .ForMember(b => b.TotalMasterBalanceInIRR, opt => opt.MapFrom(b => b.TotalBalanceInIRR))
+            .ForMember(b => b.TotalMasterBalanceInUSDT, opt => opt.MapFrom(b => b.TotalBalanceInUSDT))
+            .ForMember(b => b.IRRMasterBalance, opt => opt.MapFrom(b => b.IRRBalance))
+            .ForMember(b => b.USDTMasterBalance, opt => opt.MapFrom(b => b.USDTBalance));
     }
 }

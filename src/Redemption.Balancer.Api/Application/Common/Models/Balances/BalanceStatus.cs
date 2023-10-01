@@ -2,9 +2,13 @@
 
 public class BalanceStatus
 {
-    public decimal IRRGained { get; set; }
+    public decimal TotalBalanceInIRR { get; set; }
 
-    public decimal USDTGained { get; set; }
+    public decimal TotalBalanceInUSDT { get; set; }
+
+    public decimal IRRBalance { get; set; }
+
+    public decimal USDTBalance { get; set; }
 
     public decimal IRRInject { get; set; }
 

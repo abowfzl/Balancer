@@ -19,20 +19,20 @@ public class BalanceService : IBalanceService
     {
         ValidateRequest(request);
 
-        var balanceStatus = new BalanceStatus();
+        var balanceStatus = new BalanceStatus
+        {
+            IRRBalance = await _transactionService.CalculateAccountIRRTransactions(accountId, cancellationToken, request.StartDate, request.EndDate),
+            USDTBalance = await _transactionService.CalculateAccountUSDTTransactions(accountId, cancellationToken, request.StartDate, request.EndDate)
+        };
 
-        var irrBalanceValue = await _transactionService.CalculateAccountIRRTransactions(accountId, cancellationToken, request.StartDate, request.EndDate);
+        balanceStatus.TotalBalanceInUSDT = balanceStatus.USDTBalance + ConvertIRRtoUSDT(balanceStatus.IRRBalance, request.B2BIRRRate);
+        balanceStatus.TotalBalanceInIRR = ConvertUSDTtoIRR(balanceStatus.USDTBalance, request.B2BIRRRate) + balanceStatus.IRRBalance;
 
-        var usdtBalanceValue = await _transactionService.CalculateAccountUSDTTransactions(accountId, cancellationToken, request.StartDate, request.EndDate);
-
-        balanceStatus.USDTGained = usdtBalanceValue + ConvertIRRtoUSDT(irrBalanceValue, request.B2BIRRRate);
-        balanceStatus.IRRGained = ConvertUSDTtoIRR(usdtBalanceValue, request.B2BIRRRate) + irrBalanceValue;
-
-        var balancedUSDTBalance = balanceStatus.USDTGained / 2;
+        var balancedUSDTBalance = balanceStatus.TotalBalanceInUSDT / 2;
         var balancedIRRBalance = ConvertUSDTtoIRR(balancedUSDTBalance, request.B2BIRRRate);
 
-        balanceStatus.USDTInject = balancedUSDTBalance - usdtBalanceValue;
-        balanceStatus.IRRInject = balancedIRRBalance - irrBalanceValue;
+        balanceStatus.USDTInject = balancedUSDTBalance - balanceStatus.USDTBalance;
+        balanceStatus.IRRInject = balancedIRRBalance - balanceStatus.IRRBalance;
 
         return balanceStatus;
     }
